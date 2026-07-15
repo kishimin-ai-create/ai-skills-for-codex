@@ -1,9 +1,6 @@
-name: Test Driven Development
-description:
-すべてのコード変更に適用する必須TDDワークフロー。
-テストリストを作成し、Red → Green → Refactorを1項目ずつ繰り返し、
-各段階でコミット。
-
+---
+name: test-driven-development
+description: すべてのコード変更に適用し、テストリストを作成して Red → Green → Refactor を1項目ずつ繰り返し、各段階でコミットする必須TDDワークフロー。
 ---
 
 # Test Driven Development
