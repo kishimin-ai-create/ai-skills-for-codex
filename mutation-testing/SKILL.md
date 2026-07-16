@@ -39,4 +39,16 @@ Mutation Score を目的としてはならない。
 
 ## 参照
 
-- ミューテーションテストを行う時に下記を必ず参照しなさい。
+ミューテーションテストを実施する際は、次の Reference を必ず参照する。
+
+- references/quality-gates.md
+- references/mutant-analysis.md
+- references/mutation-categories.md
+- references/test-design.md
+- references/equivalent-mutants.md
+- references/scope-and-exclusions.md
+- references/timeouts-and-tool-errors.md
+
+作業終了時は、次のテンプレートを使用してレポートを作成する。
+
+- assets/mutation-test-report-template.md
