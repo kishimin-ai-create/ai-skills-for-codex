@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Display"
+  short_description: "ブラウザ対応と表示品質を実践的に安全設計・検証する"
+  default_prompt: "$frontend-display を使用して、レスポンシブ・i18n・テーマ・画像・アクセシビリティ・配信性能を含む表示設計を作成してください。"
