@@ -1,146 +1,89 @@
 ---
 name: refactor-patterns
-description: TypeScriptコードのリファクタリングパターン集。RefactorAgentが参照する詳細なパターン例、アンチパターン、実装例をまとめる。
+description: TypeScriptコードを振る舞いを壊さずにリファクタリングするときに使用する。責務分離、抽出、命名、ガード節、エラー処理、Interactor・Repository・Reactコンポーネント・Hookの整理、アンチパターン検出、テストによる回帰確認を扱う。
 ---
 
 # Refactoring Patterns
 
-## Common Refactoring Patterns
+外部から観測できる振る舞いを維持しながら、構造、可読性、変更容易性、テスト容易性を改善する。機能追加、バグ修正、性能最適化、仕様変更を、リファクタリングへ紛れ込ませない。
 
-### Pattern 1: Extract Validation Logic (No Behavior Change)
+## リファクタリングワークフロー
 
-入力検証をビジネスロジックから分離し、専用のメソッドへ抽出する。
+### 1. 現状と契約を固定する
 
-**Why safe**
+- 対象範囲、公開API、戻り値、エラーコード、例外、ログ、副作用、呼び出し順を確認する。
+- 関連するテスト、型、利用箇所、設定、データ境界、実行環境を調べる。
+- 現在の振る舞いを表すテストが不足している場合は、まず特徴づけテストを追加する。
+- 「変更しないもの」を作業記録へ明記する。
 
-- 戻り値が同一である
-- エラーコードが変わらない
-- 処理の流れが維持される
+### 2. 目的と制約を定める
 
-### Pattern 2: Extract Error Response Factory (Eliminate Duplication)
+- 目的を、重複削減、責務分離、命名改善、制御フロー簡素化、テスト容易化など1つ以上に限定する。
+- 変更しない挙動、許容する差分、互換性、性能、セキュリティ、期限を列挙する。
+- 変更を小さく可逆な単位へ分け、1回の差分で追跡できる意図を保つ。
 
-重複しているエラーレスポンス生成処理を、共通のメソッドへまとめる。
+### 3. パターンを選ぶ
 
-**Why safe**
+[pattern-catalog.md](./references/pattern-catalog.md)から対象へ適合するパターンを選ぶ。
 
-- 戻り値が同一である
-- エラーコードが変わらない
-- データ構造が変わらない
+- 抽出、ガード節、命名、エラー処理など、目的に直接関係するものを選ぶ。
+- Backend（Hono + TypeScript）かFrontend（React + TypeScript）かを区別する。
+- パターンの適用前に、処理順、戻り値、例外、外部呼び出しの差分を予測する。
+- パターン名だけで結論にせず、なぜ安全か、何を検証するかを記録する。
 
-### Pattern 3: Rename for Clarity (Preserves All Behavior)
+### 4. 小さく実装する
 
-変数、メソッド、クラスを、役割が分かりやすい名前へ変更する。
+- まず構造だけを変え、機能追加や仕様修正を同じ差分へ入れない。
+- 入力検証、ビジネスロジック、インフラ呼び出し、レスポンス構築を責務ごとに分ける。
+- 公開契約を保ち、内部詳細の変更を利用者へ漏らさない。
+- Repository、Validator、Interactor、Service、Component、Hookの責務を混在させない。
+- コメントは、コードだけでは分からない採用しなかった理由や危険な前提だけを書く。
 
-**Why safe**
+### 5. 段階的に検証する
 
-- ロジックが変わらない
-- 振る舞いが同一である
-- 名前だけを変更するため、既存のテスト結果に影響しない
+1. formatter、lint、型チェックを実行する。
+2. 変更対象の単体・統合テストを実行する。
+3. 境界値、エラー、例外、呼び出し順、副作用、並行性を確認する。
+4. 関連する利用箇所と回帰テストを実行する。
+5. 必要な場合だけE2E、性能、メモリ、ログ、メトリクスを確認する。
+6. 差分を読み、意図しない機能変更・デッドコード・互換性破壊がないことを確認する。
 
-### Pattern 4: Guard Clauses (Improved Readability, No Behavior Change)
+テストが通ったことだけで振る舞い同一を断定せず、利用者が観測できる契約を確認する。
 
-ネストした条件分岐を早期リターンへ変更する。
+## 安全性の基準
 
-**Why safe**
+- 返り値、ステータスコード、エラーコード、エラーメッセージ、例外の種類を意図なく変えない。
+- 検証、認可、重複確認、データ保存などの処理順を意図なく変えない。
+- 外部API、Repository、キュー、時刻、乱数、ログなどの副作用回数を意図なく変えない。
+- `try-catch`を統合するとき、捕捉範囲、ログ、再スロー、回復経路を維持する。
+- 早期returnへ変えるとき、条件の順序、短絡評価、リソース解放を維持する。
+- 名前やPropsを変更するとき、公開利用箇所、シリアライズ、DI、テストfixtureを更新する。
+- 抽出した関数やHookが新しい共有状態、循環依存、隠れた副作用を作らないようにする。
+- 最適化は測定、仮説、変更、再測定の順で行い、可読性と正確性を犠牲にしない。
 
-- 制御フローが同一である
-- 戻り値が変わらない
-- ロジックの意味が維持される
+## 変更しないものと別作業にするもの
 
-### Pattern 5: Consolidate Similar Error Handling
+- 新機能、仕様変更、バグ修正、API移行、依存更新、性能最適化は、別の意図として分離する。
+- バグを発見した場合は、まず現状をテストで固定し、別の修正として扱う。
+- テストが誤っている疑いがある場合は、期待仕様を確認してからテストと実装を同時に変更する。
+- 大規模な移行は、互換層、フラグ、段階リリース、ロールバックを用意する。
 
-重複しているエラーハンドリングを統合する。
+## 参照資料を選ぶ
 
-**Why safe**
+- 既存の具体例、Backend・Frontendの手法、アンチパターンを調べる場合は[pattern-catalog.md](./references/pattern-catalog.md)を読む。
+- 複数の案を比較し、処理順・副作用・契約の安全性を判断する場合は[decision-guide.md](./references/decision-guide.md)を読む。
+- 実装とレビューの完了条件を確認する場合は[review-checklist.md](./references/review-checklist.md)を読む。
 
-- エラー処理の経路が同一である
-- 戻り値が変わらない
-- 振る舞いが維持される
+必要な参照だけを読み、詳細例を本文へ重複転記しない。
+`pattern-catalog.md`内の`TODO`はアンチパターンを示すコード例の文字列であり、今回の作業項目ではない。
 
-## Specific Refactoring Techniques for Backend (Hono + TypeScript)
+## 出力契約
 
-### Technique 1: Extract Port/Adapter Responsibilities
+リファクタリング結果と併せて、次を報告する。
 
-- Repository固有の処理をRepositoryクラスへ移動する
-- バリデーションをValidatorクラスまたは関数へ移動する
-- Interactorにはオーケストレーションだけを残す
-
-### Technique 2: Improve Error Handling in Service Layer
-
-- `try-catch` のパターンを統合する
-- インフラストラクチャのエラーをドメインエラーへ一貫して変換する
-- エラーレスポンスの生成処理を抽出する
-
-### Technique 3: Organize Usecase Classes
-
-- Interactorごとに公開メソッドを `execute` の1つだけにする
-- サブ責務をprivateメソッドへ分離する
-- 入力検証、ビジネスロジック、エラーハンドリングを明確に分離する
-
-## Specific Refactoring Techniques for Frontend (React + TypeScript)
-
-### Technique 1: Extract Components (No Behavior Change)
-
-複数の責務を持つ大きなコンポーネントを、責務ごとのコンポーネントへ分割する。
-
-### Technique 2: Extract Custom Hooks (No Behavior Change)
-
-コンポーネント内の状態管理や共通ロジックをCustom Hookへ分離する。
-
-### Technique 3: Improve Prop Handling (No Behavior Change)
-
-意味が分かりにくいPropsを、意図が明確なPropsへ変更する。
-
-## Anti-Patterns: Things That Look Safe But Aren't
-
-### Anti-Pattern 1: "Just Optimizing" (Without Clarity Improvement)
-
-可読性を改善せず、パフォーマンスの向上だけを目的として変更する。
-
-**Why risky**
-
-最適化だけを目的とした変更は、振る舞いの違いを隠す可能性がある。保守的に変更する。
-
-### Anti-Pattern 2: "Better Organization" (Changing Behavior)
-
-コードを整理する過程で、バリデーションやデータベースアクセスなどの処理順序を変更する。
-
-**Why risky**
-
-処理順序の変更は、データベース呼び出しの有無など、外部から観測可能な振る舞いに影響する可能性がある。
-
-### Anti-Pattern 3: "Adding Comments for Future Devs"
-
-リファクタリングの一部として、説明コメント、TODO、lint無効化などを追加する。
-
-**Why risky**
-
-リファクタリングに本来必要のない変更が含まれ、変更範囲や意図が不明確になる。
-
-### Anti-Pattern 4: "Fixing Supposed Bugs" While Refactoring
-
-リファクタリングと同時に、想定上の不具合を修正する。
-
-**Why risky**
-
-既存テストが定義している振る舞いを変更する可能性がある。不具合を修正する場合は、先に失敗するテストを追加する。
-
-## Safety-First Example: CreateAppInteractor Refactoring
-
-安全なリファクタリングでは、次のような改善を行う。
-
-- 入力検証を専用メソッドへ抽出する
-- エラーレスポンスの生成処理を共通化する
-- 成功レスポンスの生成処理を共通化する
-- 変数やメソッドの名前を明確にする
-- ガード節を使用して可読性を向上させる
-
-**Why This Refactoring is Safe**
-
-- すべてのテストが成功する
-- 外部から観測できる振る舞いが同一である
-- 戻り値とエラーコードが変わらない
-- バリデーションロジックが明確になる
-- エラーハンドリングの重複が削減される
-- Repository呼び出しなどの副作用が維持される
-- 新しい機能を追加していない
+- 目的と対象範囲
+- 変更しなかった振る舞いと保った契約
+- 適用したパターンと選択理由
+- 実行したテスト・静的解析・測定と結果
+- 未検証範囲、残存リスク、ロールバック方法
+- 別作業として切り出した機能変更やバグ修正

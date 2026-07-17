@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactoring Patterns"
+  short_description: "安全なTypeScriptリファクタリングの型と検証を適用する"
+  default_prompt: "$refactor-patterns を使用して、振る舞いを保ったリファクタリング案と回帰検証計画を作成してください。"
