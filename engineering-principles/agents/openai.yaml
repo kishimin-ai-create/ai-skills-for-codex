@@ -1,0 +1,4 @@
+interface:
+  display_name: "Engineering Principles"
+  short_description: "設計判断に工学原則・制約・トレードオフ・検証を適用する"
+  default_prompt: "$engineering-principles を使用して、この変更の制約、適用原則、トレードオフ、検証方法を整理してください。"
