@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Accessibility"
+  short_description: "Web UIをWCAG 2.2 AA基準で実装・レビューする"
+  default_prompt: "$a11y を使用して、このWeb UIをWCAG 2.2 AA基準でレビューし、必要な修正と検証を行ってください。"
