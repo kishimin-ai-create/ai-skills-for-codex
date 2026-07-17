@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Routing"
+  short_description: "安全なルート設計と認証境界を実践的に整理・検証する"
+  default_prompt: "$frontend-routing を使用して、URL構成・認証認可・遷移・データ取得・エラー処理を含むルーティング設計を作成してください。"
