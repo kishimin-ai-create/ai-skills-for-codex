@@ -1,0 +1,4 @@
+interface:
+  display_name: "Article Patterns"
+  short_description: "目的別に技術記事の構成・品質・根拠・公開前チェックを設計する"
+  default_prompt: "$article-patterns を使用して、対象読者と目的に合う記事構成を設計し、根拠・再現性・公開前チェックまで整えてください。"
