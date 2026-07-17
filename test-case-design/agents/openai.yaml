@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Case Design"
+  short_description: "汎用的なテストケース設計とtest.todo化を支援する"
+  default_prompt: "$test-case-design を使用して、要件からテストケースまたはtest.todoのアウトラインを作成してください。"
