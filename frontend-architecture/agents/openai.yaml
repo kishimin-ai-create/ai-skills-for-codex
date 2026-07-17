@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Architecture"
+  short_description: "要件と運用制約からフロントエンド構成を安全に選定する"
+  default_prompt: "$frontend-architecture を使用して、要件・制約に基づくフロントエンドアーキテクチャ案と検証計画を作成してください。"
