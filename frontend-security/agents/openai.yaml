@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Security"
+  short_description: "フロントエンドの認証と安全な境界を実践的に設計する"
+  default_prompt: "$frontend-security を使用して、認証・認可・セッション・入力・Security Header・依存関係の安全設計を作成してください。"
