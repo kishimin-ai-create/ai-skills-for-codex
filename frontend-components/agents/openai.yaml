@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Components"
+  short_description: "再利用可能で保守しやすいUIコンポーネントを設計する"
+  default_prompt: "$frontend-components を使用して、責務・Props・状態・アクセシビリティを整理したコンポーネント設計または変更案を作成してください。"
