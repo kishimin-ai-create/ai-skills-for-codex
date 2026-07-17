@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend State"
+  short_description: "状態の分類と保存先を安全に実践的に設計・検証します"
+  default_prompt: "$frontend-state を使用して、状態分類・保存先・キャッシュ・同期・オフライン方針を含む設計を作成してください。"
