@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Strategy"
+  short_description: "リスクからテスト層と品質ゲートを横断して安全に設計する"
+  default_prompt: "$test-strategy を使用して、リスク、テスト層、実行順、品質ゲートを計画してください。"
