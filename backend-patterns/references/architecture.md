@@ -13,13 +13,13 @@ src/
 
 ## Layer responsibilities
 
-| Layer | Responsibility | Must not do |
-| --- | --- | --- |
-| Model | Entities、Value Objects、business rules | 他レイヤー、framework、DB、HTTPへの依存 |
-| Service | Business logic、Usecase orchestration | SQL、HTTP、Infrastructure詳細 |
-| Repository | Persistence boundary; InterfaceはModel側、実装はInfrastructure側 | Infrastructure errorの漏出 |
-| Controller | Request/response mapping、Service呼び出し | 業務ロジック、直接DBアクセス |
-| Infrastructure | DB、外部API、framework、adapter | 業務ロジックを内包すること |
+| Layer          | Responsibility                                                   | Must not do                             |
+| -------------- | ---------------------------------------------------------------- | --------------------------------------- |
+| Model          | Entities、Value Objects、business rules                          | 他レイヤー、framework、DB、HTTPへの依存 |
+| Service        | Business logic、Usecase orchestration                            | SQL、HTTP、Infrastructure詳細           |
+| Repository     | Persistence boundary; InterfaceはModel側、実装はInfrastructure側 | Infrastructure errorの漏出              |
+| Controller     | Request/response mapping、Service呼び出し                        | 業務ロジック、直接DBアクセス            |
+| Infrastructure | DB、外部API、framework、adapter                                  | 業務ロジックを内包すること              |
 
 ## Dependency direction
 
