@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mutation Testing"
+  short_description: "ミュータント分析とテストギャップ修正を証拠付きで行う"
+  default_prompt: "$mutation-testing を使用して、Mutation Reportを分析し、テストギャップと残存ミュータントを報告してください。"
