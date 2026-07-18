@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Input"
+  short_description: "Input validation and injection prevention"
+  default_prompt: "Apply $security-input to review encoding, injection prevention, sanitization, validation, business-flow controls, and file handling."
