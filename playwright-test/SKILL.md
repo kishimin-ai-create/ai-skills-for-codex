@@ -1,9 +1,88 @@
 ---
 name: playwright-test
-description: Best practices and reference for Playwright Test (E2E). Covers how to write tests, avoiding fixed waits, network triggers, DnD, shard/retry setup on GitHub Actions, and more. Use when writing, reviewing, or configuring CI for Playwright tests.
+description: Playwright Testのユニット境界外テスト、ブラウザE2E、認証・CRUD、ロケーター、フィクスチャ、ネットワーク、DnD、アクセシビリティ、失敗診断、CI設定を設計・実装・レビューするときに使う。
 ---
 
 # Playwright Test
+
+このSkillをPlaywright関連の唯一の主エントリとして使用する。プロジェクト固有のAGENTS.md、ADR、既存設定を優先し、以下の順で作業する。
+
+1. `package.json`、`playwright.config.*`、既存のfixture・テスト・実行スクリプトを確認する。
+2. ユーザーが観測できる契約をシナリオ（前提・操作・期待結果）として定義する。
+3. テストレベル、ブラウザー、データ分離、認証状態、実行環境を選ぶ。
+4. 実装後に対象コマンドを実行し、失敗時はtrace・screenshot・video・HTMLレポートで原因を確認する。
+
+## 必須の正常系シナリオ
+
+機能ブランチで認証や主要リソースを変更する場合、該当する成功するブラウザテストを必ず含める。機能に存在しないシナリオを捏造せず、対象外は理由を記録する。
+
+### サインアップ
+
+- サインアップページへ移動する。
+- 必要な情報を入力して送信する。
+- アプリ一覧または同等の認証済み画面へリダイレクトされることを確認する。
+- エラーメッセージが表示されないことを確認する。
+
+### サインイン
+
+- サインインページへ移動する。
+- テスト専用の有効な既存ユーザー情報を入力して送信する。
+- アプリ一覧へリダイレクトされることを確認する。
+- エラーメッセージが表示されないことを確認する。
+
+### 主要リソースのCRUD
+
+作成したデータをテスト内で一意に識別し、Create → Read → Update → Delete の順に検証する。
+
+| 操作   | ユーザー操作           | 期待結果                         |
+| ------ | ---------------------- | -------------------------------- |
+| Create | 必須情報を入力して作成 | 一覧または適切な画面に表示される |
+| Read   | 作成したリソースを開く | 作成内容が正しく表示される       |
+| Update | 編集して保存する       | 更新内容が反映される             |
+| Delete | 削除し必要なら確認する | リソースが表示されなくなる       |
+
+## テスト構造と再利用
+
+- 各テストは Arrange → Act → Assert（AAA）で構造化する。
+- テスト名は対象・条件・期待結果を含める（例: `有効な認証情報を送信すると認証済み一覧へ遷移する`）。
+- 繰り返すページ遷移・入力・クリックは、テスト近くのヘルパーまたはPage Object Modelへ抽出する。
+- `e2e/helpers/`などプロジェクトの既存規約を優先し、抽象化がテストの意図を隠さないようにする。
+
+## ユーザー中心の検証とロケーター
+
+- `expect(locator).toBeVisible()`、`toHaveText()`、`toHaveURL()`などのweb-first assertionを使う。
+- 内部状態や脆いDOM構造ではなく、ユーザーから見える結果を検証する。
+- `getByRole`、`getByLabel`、`getByPlaceholder`、`getByText`の順で意味のあるロケーターを選ぶ。
+- `data-testid`は最後の手段とし、採用理由をコメントまたはレビュー記録に残す。
+- `page.waitForSelector`や固定時間待機を新規コードに追加しない。状態を表すlocator、URL、レスポンスを待つ。
+
+## 実行環境・安全性
+
+- `baseURL`は設定または環境変数から与え、テスト本体に`localhost`をハードコードしない。
+- テスト専用アカウント・データを使い、実在の秘密情報、個人情報、認証トークンをリポジトリへ保存しない。
+- `storageState`はテスト専用・最小権限・適切な.gitignoreを確認し、共有環境へ漏らさない。
+- テスト間の状態共有を避け、並列実行時もデータ・ポート・ファイルが衝突しないようにする。
+
+## アクセシビリティの最小チェック
+
+対象フローでは、専用のアクセシビリティSkillやプロジェクト規約があればそれを併用し、少なくとも次を確認する。
+
+- マウスを使わずTab・Shift+Tab・Enter・Escapeで主要操作が完了し、フォーカス順と可視フォーカスが妥当である。
+- 入力にlabel、ボタンに目的が分かるaccessible name、主要領域に適切な見出し・landmarkがある。
+- エラー・空状態・非同期更新が`role=alert`や適切なライブ領域で利用者に伝わり、フォーカスが失われない。
+- 可能なら`@axe-core/playwright`を導入して対象ページの自動検査を行い、既知の除外は理由と期限を記録する。自動検査だけで適合を断定しない。
+- CIでは重大な自動検査違反を失敗にし、キーボード操作・ズーム・コントラストなど自動化できない項目は手動確認として報告する。
+
+## テスト方式の選択
+
+- 実サービスを使うか、`page.route`のfixture、HARのrecord/replayを使うかは、ユーザー統合の証明範囲・再現性・CIコストで決める。選択理由を記録する。
+- 認証が必要ならsetup projectと`storageState`を使い、seed・cleanup・権限・期限切れをプロジェクトのデータ規約に合わせる。
+- retryは失敗を隠すために使わず、最終結果とtraceを確認してflaky候補を分類する。ブラウザー・shard・Nodeバージョン、artifact保持期間はCI制約に合わせる。
+- 仕様固有のURL、role/name、API schema、query parameterを推測せず、実装または要求仕様を確認してからテストを書く。
+
+## 出力契約
+
+完了時は、変更したファイル、追加したシナリオ、実行コマンドと結果、未実行の理由、失敗・既知の不安定要因、残存リスクを簡潔に報告する。
 
 ## Configuration Template
 

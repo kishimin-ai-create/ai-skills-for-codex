@@ -1,0 +1,4 @@
+interface:
+  display_name: "Playwright Test"
+  short_description: "PlaywrightのE2EとCIを設計・実装・検証"
+  default_prompt: "Playwright Testでユーザー中心のE2Eシナリオを設計し、実装・実行・診断してください。"
