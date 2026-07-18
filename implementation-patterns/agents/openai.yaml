@@ -1,0 +1,6 @@
+interface:
+  display_name: "Implementation Patterns"
+  short_description: "テストから最小実装を導くパターン集"
+  default_prompt: "$implementation-patternsを使って、テストを満たす最小実装を導出してください。"
+policy:
+  allow_implicit_invocation: true
