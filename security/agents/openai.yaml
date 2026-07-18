@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security"
+  short_description: "認証・秘密情報・入力境界の安全規則"
+  default_prompt: "Use $security to review authentication, credentials, tokens, and input validation."
+policy:
+  allow_implicit_invocation: true
