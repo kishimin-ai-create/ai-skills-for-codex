@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security Authn"
+  short_description: "認証・MFA・セッション管理の安全規則を適用"
+  default_prompt: "$security-authnを使って、認証、MFA、セッションToken、Timeout、Logoutをレビューしてください。"
+policy:
+  allow_implicit_invocation: true
