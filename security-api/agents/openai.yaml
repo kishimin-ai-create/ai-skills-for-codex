@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security API"
+  short_description: "API通信とTLSのセキュリティ規則を適用"
+  default_prompt: "$security-apiを使って、API、GraphQL、WebSocket、TLSのセキュリティをレビューしてください。"
+policy:
+  allow_implicit_invocation: true
