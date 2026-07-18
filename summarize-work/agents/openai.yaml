@@ -1,0 +1,4 @@
+interface:
+  display_name: "Summarize Work"
+  short_description: "作業結果を事実と未完了事項つきで安全に引き継ぐサマリーを作る"
+  default_prompt: "$summarize-work を使用して、今回の変更・検証結果・未完了事項・残存リスクを事実と仮定を分離して要約してください。"
