@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Patterns"
+  short_description: "再利用可能なテスト実装パターンとモック境界を安全に選択する"
+  default_prompt: "$test-patterns を使用して、対象に適したテスト実装パターンとモック境界を提案してください。"
