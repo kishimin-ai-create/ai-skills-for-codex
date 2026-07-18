@@ -1,0 +1,6 @@
+interface:
+  display_name: "SQL Anti-patterns"
+  short_description: "SQL設計・クエリ・制約の危険なパターンを検出"
+  default_prompt: "$sql-anti-patternsを使って、SQLのアンチパターンと安全な改善案をレビューしてください。"
+policy:
+  allow_implicit_invocation: true
