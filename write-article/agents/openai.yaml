@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Article"
+  short_description: "根拠付きの日本語技術記事を構成して執筆・レビューする"
+  default_prompt: "$write-article を使用して、指定された根拠から読者向けの日本語技術記事を構成・執筆してください。"
