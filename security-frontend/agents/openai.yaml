@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Frontend"
+  short_description: "Web frontend security protections"
+  default_prompt: "Apply $security-frontend to review browser security headers, cookies, CSP, CSRF, CORS, safe rendering, and external resources."
