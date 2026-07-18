@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security Authz"
+  short_description: "認可・アクセス制御・JWT安全規則を適用"
+  default_prompt: "$security-authzを使って、認可、テナント分離、JWT、アクセス制御をレビューしてください。"
+policy:
+  allow_implicit_invocation: true
