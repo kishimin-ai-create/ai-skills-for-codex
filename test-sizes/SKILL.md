@@ -22,5 +22,3 @@ description: テストをSmall、Medium、Largeへ分類し、速度ではなく
 5. flaky、timeout、環境依存をサイズのせいにせず、原因を分離して修正する。
 
 ## 参照
-
-- [保存した従来版](references/original-skill-catalog.md)

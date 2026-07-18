@@ -30,7 +30,6 @@ description: 不具合、テスト失敗、型・Lint・ビルドエラー、回
 
 - [原因・修正選択ガイド](references/decision-guide.md)
 - [修正レビュー checklist](references/review-checklist.md)
-- [保存した従来版](references/original-skill-catalog.md)
 
 ## 出力契約
 
