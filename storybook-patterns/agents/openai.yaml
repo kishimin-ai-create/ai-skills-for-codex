@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storybook Patterns"
+  short_description: "StorybookでUI状態と操作を再現可能に安全設計する"
+  default_prompt: "$storybook-patterns を使用して、CSF 3.0・MSW・play・A11y・レスポンシブ・Visual Regressionを含むStory設計を作成してください。"
