@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Cryptography"
+  short_description: "Cryptography and key management"
+  default_prompt: "Apply $security-cryptography to review algorithms, hashing, random values, key lifecycle, crypto agility, and secure cryptographic implementation."
