@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Testing"
+  short_description: "静的解析からE2EとA11yまで品質を実践的に設計する"
+  default_prompt: "$frontend-testing を使用して、静的解析・テスト層・E2E・アクセシビリティ・CI品質ゲートを含むテスト計画を作成してください。"
