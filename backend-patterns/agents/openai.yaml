@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backend Patterns"
+  short_description: "DDDとClean Architectureのバックエンド実装規則"
+  default_prompt: "backend-patternsを使って、レイヤー境界・依存方向・テスト配置・検証手順を確認してください。"
