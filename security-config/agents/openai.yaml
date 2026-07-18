@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Config"
+  short_description: "Secure configuration and data protection"
+  default_prompt: "Apply $security-config to review secret management, backend communication, hardening, data classification, and client-side data protection."
