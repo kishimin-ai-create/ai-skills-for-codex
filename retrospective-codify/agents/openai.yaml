@@ -1,0 +1,4 @@
+interface:
+  display_name: "Retrospective Codify"
+  short_description: "試行錯誤の教訓を再利用可能な規則へ安全に変換する方法"
+  default_prompt: "$retrospective-codify を使用して、今回の教訓を重複なくSkill・Agent・AGENTS.md規則へ整理してください。"

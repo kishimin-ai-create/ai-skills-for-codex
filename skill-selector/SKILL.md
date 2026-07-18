@@ -1,6 +1,6 @@
 ---
 name: skill-selector
-description: "Meta-skill for picking project skills via APM. Invoke ONLY when the user explicitly asks to set up apm.yml, choose which skills a project needs, or evaluate a catalog match — do NOT auto-invoke on routine project-init or apm-management tasks. Two-phase: pick from a curated catalog first; only escalate to broader search/evaluation when the catalog has no fit. Avoids the failure mode of impulse-installing skills you never use or hand-searching GitHub when a vetted answer already exists."
+description: "Meta-skill for selecting project skills from this PC's local catalog. Invoke only when the user explicitly asks which skills a project needs or asks to evaluate a catalog match; do not auto-invoke during routine work."
 ---
 
 # Skill Selector
@@ -27,7 +27,7 @@ When NOT to use:
 
 ## Phase 1 — Curated catalog
 
-The catalog lives in [references/catalog.md](references/catalog.md). It is grouped by project signal (language / tool / process), with `apm install` strings inline.
+The catalog is the current inventory under `$HOME/.agents` and `$HOME/.codex/skills`, grouped by project signal (language / tool / process). Re-scan these directories before making a recommendation.
 
 Workflow:
 
@@ -35,7 +35,7 @@ Workflow:
 2. Identify project signals from three sources:
    - **Repo files**: `package.json` (Node), `moon.mod.json` (MoonBit), `gleam.toml` (Gleam), `flake.nix` (Nix), `.github/workflows/` (CI), Playwright config, `dotenvx` keystore.
    - **Stated user intent**: in-message cues like "we plan to deploy to X", "we publish a small npm utility eventually".
-   - **CLAUDE.md mandates**: persistent rules in user-level `~/.claude/CLAUDE.md` or project-level `CLAUDE.md` (e.g., "task runner: justfile", "lint: ast-grep") count as signals even when the scenario text is silent. When mandate and stated intent disagree, surface the conflict to the user before installing. In the proposal, label mandate-driven rows explicitly (e.g., `# from ~/.claude/CLAUDE.md: task runner = justfile`) so a reviewer doesn't mistake them for padding.
+   - **AGENTS.md mandates**: persistent rules in `$HOME/.codex/agents/AGENTS.md` or project-level `AGENTS.md` (e.g., task runner or lint rules) count as signals even when the scenario text is silent. When mandate and stated intent disagree, surface the conflict to the user before installing.
 3. Confirm with the user before installing — propose, let them subtract. Default to fewer skills, not more. Each skill consumes context every conversation.
    - **Non-interactive contexts** (subagent dispatch, scripted automation, batch runs): emit the proposal as the deliverable and stop. The caller subtracts. Do not stall waiting for a confirmation that will not come.
    - **Active-in-language heuristic**: if the user is actively writing code in a language with a `<lang>-practice` skill in the catalog (e.g. `moonbit-practice`, `gleam-practice`), include it. If they only consume a single binding or dep written in that language, hold off.
@@ -82,9 +82,9 @@ Reverse failure: forcing a Phase 1 fit when the catalog truly has nothing suitab
 
 ## Maintenance of the catalog
 
-- Catalog is part of this skill. Keep it in sync when `mizchi/skills` (and upstream skill repos referenced) gain or lose skills.
+- Catalog is part of this skill. Keep it in sync with the local `$HOME/.agents` and `$HOME/.codex/skills` directories.
 - A skill discovered through Phase 2 (`skill-finder`) may be promoted into the catalog after it has been used in 2+ projects without issue and after passing its waxa eval.
-- If the catalog feels stale, cross-check against [`mizchi/skills` README](https://github.com/mizchi/skills) before falling back to `skill-finder`.
+- If the catalog feels stale, inspect the local Skill directories and run the official Skill validator before falling back to `skill-finder`.
 
 ## Common mistakes
 

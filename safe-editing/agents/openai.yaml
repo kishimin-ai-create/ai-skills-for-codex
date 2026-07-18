@@ -1,0 +1,4 @@
+interface:
+  display_name: "Safe Editing"
+  short_description: "既存コードを影響範囲を抑えて安全に段階編集する手順"
+  default_prompt: "$safe-editing を使用して、変更前後の検証を行いながら最小差分で編集してください。"

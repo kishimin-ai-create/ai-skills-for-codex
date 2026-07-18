@@ -1,0 +1,4 @@
+interface:
+  display_name: "Empirical Prompt Tuning"
+  short_description: "Codex指示を独立評価で反復改善する方法を定義する"
+  default_prompt: "$empirical-prompt-tuning を使用して、対象Skillを独立実行と二側面評価で改善してください。"

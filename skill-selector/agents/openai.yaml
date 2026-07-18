@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Selector"
+  short_description: "このPCの既存Skillから必要なものだけを慎重に選ぶ"
+  default_prompt: "$skill-selector を使用して、プロジェクトに必要なSkillと重複しない最小構成を選定してください。"

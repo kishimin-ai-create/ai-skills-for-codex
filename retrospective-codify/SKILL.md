@@ -1,6 +1,6 @@
 ---
 name: retrospective-codify
-description: 'Pair "what failed first" with "what finally worked" and codify the should-have-known-it insight as an ast-grep rule, a skill, or a CLAUDE.md rule. Meta-skill: invoke ONLY when the user explicitly says "codify today''s lessons," "make it a skill," "drop it into lint," or asks to extract a reusable rule from a trial-and-error fix. Do NOT auto-invoke at every task completion. Spares future-you (or another agent) the same trap.'
+description: 'Pair "what failed first" with "what finally worked" and codify the should-have-known-it insight as a static rule, a Skill, or an AGENTS.md rule for this PC. Invoke only when the user explicitly asks to codify a lesson or extract a reusable rule.'
 ---
 
 # Retrospective Codify
@@ -34,12 +34,12 @@ When not to use:
 
    ```
    # skill duplicates (global)
-   ls ~/.claude/skills/
-   Grep "<key>" ~/.claude/skills/*/SKILL.md
+   Get-ChildItem $HOME/.agents -Recurse -Filter SKILL.md
+   rg -n "<key>" $HOME/.agents $HOME/.codex
 
-   # CLAUDE.md duplicates
-   Grep "<key>" ~/.claude/CLAUDE.md
-   Grep "<key>" <project-root>/CLAUDE.md   # if there is a matching project
+   # AGENTS.md duplicates
+   rg -n "<key>" $HOME/.codex/agents/AGENTS.md
+   rg -n "<key>" <project-root>/AGENTS.md   # if there is a matching project
 
    # lint rule duplicates
    ls <project-root>/rules/
@@ -64,13 +64,13 @@ digraph classify {
     "Short instruction to apply every time?" [shape=diamond];
     "Involves multi-step procedure or judgment?" [shape=diamond];
     "ast-grep rule / lint" [shape=box];
-    "CLAUDE.md rule" [shape=box];
+    "AGENTS.md rule" [shape=box];
     "skill" [shape=box];
     "keep as note" [shape=box];
 
     "Mechanically detectable?" -> "ast-grep rule / lint" [label="yes"];
     "Mechanically detectable?" -> "Short instruction to apply every time?" [label="no"];
-    "Short instruction to apply every time?" -> "CLAUDE.md rule" [label="yes"];
+    "Short instruction to apply every time?" -> "AGENTS.md rule" [label="yes"];
     "Short instruction to apply every time?" -> "Involves multi-step procedure or judgment?" [label="no"];
     "Involves multi-step procedure or judgment?" -> "skill" [label="yes"];
     "Involves multi-step procedure or judgment?" -> "keep as note" [label="no"];
@@ -80,16 +80,16 @@ digraph classify {
 | Decision axis                                         | Output destination                                     | Example                                               |
 | ----------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------- |
 | Detectable at the code/config syntax level            | `ast-grep` rule or existing linter config              | "Do not use `Array.from(set).length`, use `set.size`" |
-| Short, always-applied, no judgment involved           | `CLAUDE.md` (user global / project)                    | "Use pnpm v10 or later"                               |
+| Short, always-applied, no judgment involved           | `AGENTS.md` (user global / project)                    | "Use pnpm v10 or later"                               |
 | Requires procedure, contextual judgment, or templates | New skill or append to existing skill                  | "Steps to write a C binding for MoonBit"              |
 | Project-specific and one-off                          | Do not adopt (keep in commit message / PR description) | —                                                     |
 
 **Principle: prefer ast-grep**: For things that are statically detectable, do not write them in prompts or docs; always make them an `ast-grep` rule (as the user's global rule).
 
-**CLAUDE.md write destinations**:
+**Codex write destinations**:
 
-- Cross-language / cross-tool general rules -> `~/.claude/CLAUDE.md`
-- Limited to a specific repository -> that repository's `CLAUDE.md`
+- Cross-language / cross-tool general rules -> `$HOME/.codex/agents/AGENTS.md`
+- Limited to a specific repository -> that repository's `AGENTS.md`
 
 ## Output templates
 
@@ -97,7 +97,7 @@ digraph classify {
 
 See the `ast-grep-practice` skill. Add YAML under the `rules/` directory and always write a valid / invalid pair under `rule-tests/`.
 
-### Append to CLAUDE.md
+### Append to AGENTS.md
 
 ```markdown
 # <append to existing section>
@@ -123,6 +123,8 @@ description: Use when <specific situation> / <symptom>
 
 ## When to use
 
+This installation uses `$HOME/.agents` and `$HOME/.codex`; references to other assistant configuration locations in the preserved catalog are historical only.
+
 ## Workflow
 
 ## Pitfalls
@@ -147,13 +149,13 @@ rule:
 message: Set/Map のサイズは .size プロパティを使う。
 ```
 
-### Example 2: Codify as a CLAUDE.md rule (short always-on rule)
+### Example 2: Codify as an AGENTS.md rule (short always-on rule)
 
 - First attempt: Ran `pnpm install` and CI broke due to a lockfile format diff.
 - Final solution: Aligned pnpm's version to the v10 line.
 - Insight: pnpm changes its lockfile across versions. Always use v10 or later.
 
--> Append to the "ツール" section of `~/.claude/CLAUDE.md`:
+-> Append to the "ツール" section of `$HOME/.codex/agents/AGENTS.md`:
 
 ```markdown
 - pnpm は v10 以上を使う（理由: lockfile 形式が v9 以前と非互換で CI 差分が出る）
@@ -174,7 +176,7 @@ Stop once if the following thoughts appear.
 | Rationalization that surfaces                                                                  | Reality                                                                                                                |
 | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | "It is project-specific but let's make a skill just in case"                                   | Skills bloat and searchability drops. A commit message / PR is enough.                                                 |
-| "Skip approval and write it out first; I can show it later"                                    | Modifying CLAUDE.md / skills on your own makes future behavior unpredictable. Always: propose -> approve -> write out. |
+| "Skip approval and write it out first; I can show it later"                                    | Modifying AGENTS.md / skills on your own makes future behavior unpredictable. Always: propose -> approve -> write out. |
 | "I kind of could write it in ast-grep, but writing it in natural language as a rule is faster" | Writing statically detectable things in prose means agents do not follow them. Prefer ast-grep.                        |
 | "The insight is thin, but I have to write something to save face"                              | Zero proposals is also a correct answer. An empty retrospective causes no harm.                                        |
 | "Dedup checks are tedious; skip them, erase duplicates later"                                  | If duplicate rules remain, behavior splits. Dedup is a mandatory step.                                                 |
@@ -203,7 +205,7 @@ Adoption candidates:
 - [lint] <rule name>: <1 line> (artifact: <path>, from lesson N)
 - [skill append] <existing skill name>: <1 line> (from lesson N)
 - [skill new] <skill name>: <1 line> (from lesson N)
-- [rule] CLAUDE.md (global/project): <1 line> (from lesson N)
+- [rule] AGENTS.md (global/project): <1 line> (from lesson N)
 
 Duplicate detected (no proposal needed):
 - <lesson N>: fully covered by <section name or line number> of existing <skill/rule name> -> no addition
@@ -249,15 +251,15 @@ Adoption candidates:
 - [skill append] <existing skill name>: <1 line for the new portion> (from lesson 1, complements existing section `<section name>`)
 
 Duplicate detected (no proposal needed):
-- Lesson 1 (version value portion): already covered by the tools section in `~/.claude/CLAUDE.md` -> no append needed
+- Lesson 1 (version value portion): already covered by the tools section in `$HOME/.codex/agents/AGENTS.md` -> no append needed
 ```
 
 ## Common failures
 
 - **Granularity too fine**: codifying the one-off specifics (a specific function name, a specific version) -> abstract it up to the level of "what to check"
-- **Tends to be written as a prompt**: writing a statically detectable rule in natural language in CLAUDE.md -> move it to an `ast-grep` rule
+- **Tends to be written as a prompt**: writing a statically detectable rule in natural language in AGENTS.md -> move it to an `ast-grep` rule
 - **Does not write the reason**: the rule's rationale is not left behind, and the future self cannot judge why to follow it -> always attach a `Why:`
-- **Writes out on its own**: updates CLAUDE.md or skills without user approval -> always follow propose -> approve -> write out in that order
+- **Writes out on its own**: updates AGENTS.md or skills without user approval -> always follow propose -> approve -> write out in that order
 - **Omits verbalizing the failure**: writes only "the final solution is X" and does not leave why the first move got stuck -> without a description on the failure side, your future self will fall into the same pitfall again
 
 ## Related skills

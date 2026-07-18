@@ -1,15 +1,15 @@
 ---
 name: waxa-eval
-description: "Use when iterating on a skill's prompt with the waxa CLI (https://github.com/mizchi/skills/tree/main/tools/waxa) — authoring scenarios, choosing graders, interpreting unclear-points, advancing a ledger, and judging convergence. Encodes the four-stage iteration pattern observed in real iter loops (structural fix → grader breadth → surface-form coverage → residual unclear) and the scenario-design pitfalls (blank-slate executor's network limit, prompt expectation explicitness, regex coverage of Japanese/English surface forms). Meta-skill: do NOT auto-invoke for routine skill edits; fires only when the user explicitly runs waxa or asks for a skill-quality eval."
+description: "Use when the user explicitly asks to evaluate or iterate on a Skill or Agent prompt with the evaluation tooling available on this PC. Cover scenarios, graders, unclear points, ledgers, and convergence; do not auto-invoke for routine edits."
 ---
 
 # waxa-eval
 
 Empirical evaluation loop for skill prompts, codified from real iter runs.
 This skill is the operating manual for `waxa`; the CLI itself lives in
-`tools/waxa/` (see its README for argument-level reference).
+Use the locally available evaluation tool and its README when present; do not assume a global installation or a particular vendor CLI.
 
-`waxa` extends [microsoft/waza](https://github.com/microsoft/waza) with
+The local evaluator extends the baseline scenario-and-grader workflow with
 `empirical-prompt-tuning` semantics on top: forced Self-report, ledger
 across iterations, four grader types, and convergence detection.
 
@@ -50,7 +50,7 @@ Two roles, both mandatory:
 
 ### Pitfall: blank-slate executor cannot run external tools
 
-`waxa` invokes the executor with `claude -p --no-session-persistence --disable-slash-commands` and a system prompt that explicitly forbids external tools. The executor cannot run `apm view`, fetch a web URL, or list files. **State this constraint in the scenario prompt** when the workflow would otherwise require it:
+The evaluator should invoke an isolated Codex subagent with a prompt that explicitly states its tool permissions. If external tools, network, or repository access are unavailable, **state this constraint in the scenario prompt**:
 
 ```yaml
 inputs:
@@ -176,7 +176,7 @@ convergence:
 
 ## Test layout convention
 
-From waxa 0.2.0, eval files live **inside the skill directory**, mirroring [agentskills.io's evaluating-skills layout](https://agentskills.io/skill-creation/evaluating-skills). This lets a single skill repo carry its own eval suite and ship as a self-contained unit:
+Evaluation files should live **inside the skill directory** so the Skill and its scenarios remain self-contained:
 
 ```
 <skill>/                                # the target skill (distribution unit)
@@ -201,27 +201,27 @@ Bare minimum:
 
 ```bash
 # Scaffold the eval skeleton (run inside the skill's own dir).
-npx @mizchi/waxa init [--skill <name>] [--force]
+Use the locally available evaluator's initialization command, if installed.
 
 # Single eval pass.
-npx @mizchi/waxa <skill>/evals/eval.yaml
+Run the local evaluator against `<skill>/evals/eval.yaml`.
 
 # Single task.
-npx @mizchi/waxa <skill>/evals/eval.yaml --task <task-id>
+Run the local evaluator for `<task-id>` when supported.
 
 # Single eval with baseline (with_skill vs without_skill, reports Delta).
-npx @mizchi/waxa <skill>/evals/eval.yaml --baseline
+Run the local evaluator baseline when supported.
 
 # Iteration loop (auto re-runs while pass rate improves; writes ledger.yaml).
-npx @mizchi/waxa iterate <skill>/evals/eval.yaml --max 4
+Run sequential local evaluator iterations when supported.
 
 # Audit a skill directory (apm audit hidden-Unicode scan + waxa native
 # quality checks: frontmatter, body length, When-NOT-to-use, suspicious
 # scripts, LICENSE).
-npx @mizchi/waxa audit <skill>/ [--no-apm] [--json]
+Run the official Skill validator and the local structural audit when available.
 ```
 
-The npm package bundles `references/empirical-prompt-tuning.md` so the methodology is on disk wherever waxa is installed. After `npx @mizchi/waxa` first runs, the file lives at `<node_modules>/@mizchi/waxa/references/empirical-prompt-tuning.md`.
+Use `$HOME/.agents/empirical-prompt-tuning/SKILL.md` as the local methodology reference.
 
 ### `--baseline` — is the skill earning its keep?
 

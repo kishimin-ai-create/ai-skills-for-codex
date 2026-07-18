@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Evaluation"
+  short_description: "SkillとAgent指示を隔離評価して改善判断する"
+  default_prompt: "$waxa-eval を使用して、対象Skillを評価シナリオとCodexサブエージェントで検証してください。"

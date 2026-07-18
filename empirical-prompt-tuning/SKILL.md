@@ -1,6 +1,6 @@
 ---
 name: empirical-prompt-tuning
-description: Methodology for iteratively improving agent-facing instructions (skills / slash commands / CLAUDE.md / code-gen prompts) via bias-free executor + two-sided evaluation (self-report + instruction-side metrics). Meta-skill, invoke ONLY when the user explicitly asks for an "empirical" eval of a prompt or skill, or for the Iter-0 description / body consistency check. Do NOT auto-invoke after every skill edit; this loop is operator-triggered by name.
+description: Methodology for iteratively improving Codex-facing instructions (skills, Agent definitions, AGENTS.md, and code-generation prompts) via independent execution and two-sided evaluation. Invoke only when the user explicitly asks for empirical evaluation or consistency checking.
 ---
 
 # Empirical Prompt Tuning
@@ -131,7 +131,7 @@ The caller extracts the self-report portion from the report and fills the evalua
 
 In environments where dispatching a new subagent is not possible (already running as a subagent, Task tool is disabled, etc.), **do not apply** this skill.
 
-- Alternative 1: ask the parent session's user to start a separate Claude Code session and delegate the evaluation there
+- Alternative 1: ask the parent session's user to start a separate Codex session and delegate the evaluation there
 - Alternative 2: give up on evaluation and explicitly report to the user "empirical evaluation skipped: dispatch unavailable"
 - **NG**: substitute with a self-reread (bias enters, so you must not trust the evaluation result)
 

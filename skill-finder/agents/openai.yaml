@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Finder"
+  short_description: "未導入Skillを比較評価して安全に候補化する手順を使う"
+  default_prompt: "$skill-finder を使用して、未導入Skillの適合性、重複、安全性、評価結果を調査してください。"
