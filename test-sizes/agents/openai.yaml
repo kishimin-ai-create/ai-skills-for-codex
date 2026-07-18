@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Sizes"
+  short_description: "依存範囲に応じてテストサイズと実行層を適切に分類する"
+  default_prompt: "$test-sizes を使用して、各テストをSmall Medium Largeへ分類し実行計画を作成してください。"
