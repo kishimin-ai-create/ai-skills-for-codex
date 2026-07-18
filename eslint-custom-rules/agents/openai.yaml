@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESLint Custom Rules"
+  short_description: "ESLintルールを設計実装し安全に段階導入する方法を決める"
+  default_prompt: "$eslint-custom-rules を使用して、規約からESLintルール、RuleTester、設定、移行計画を作成してください。"
