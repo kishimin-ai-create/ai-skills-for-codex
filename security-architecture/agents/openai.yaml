@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security Architecture"
+  short_description: "安全な設計・依存管理・監査ログ規則を適用"
+  default_prompt: "$security-architectureを使って、依存管理、セキュアコーディング、並行性、監査ログをレビューしてください。"
+policy:
+  allow_implicit_invocation: true
