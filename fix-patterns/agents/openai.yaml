@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix Patterns"
+  short_description: "不具合の根本原因と回帰防止を安全に一貫して設計する"
+  default_prompt: "$fix-patterns を使用して、不具合を再現・分類し、最小修正と回帰テストを提案してください。"
