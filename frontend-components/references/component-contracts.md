@@ -1,5 +1,5 @@
 ---
-name: frontend-component
+name: frontend-components
 description: フロントエンドのコンポーネントを設計、作成、変更する際に使用する。共有UIコンポーネントのネイティブHTML propsとの互換性を維持し、UI、features、pagesの責務を適切に分離するための実装手順。
 ---
 
