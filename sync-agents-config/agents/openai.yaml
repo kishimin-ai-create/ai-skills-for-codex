@@ -1,0 +1,4 @@
+interface:
+  display_name: "AGENTS.md Sync"
+  short_description: "Sync a Git-managed AGENTS.md with Codex settings"
+  default_prompt: "Sync the repository AGENTS.md with $HOME/.codex/AGENTS.md safely."
