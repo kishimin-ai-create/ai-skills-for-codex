@@ -1,6 +1,6 @@
 ---
 name: git-rules
-description: Gitのブランチ命名、履歴保護、リモート操作の制限、コミット対象を管理し、安全にGit操作を行うためのルール。
+description: Gitのブランチ命名、コミットメッセージ、履歴保護、リモート操作の制限、コミット対象を管理し、安全にGit操作を行うためのルール。
 ---
 
 # Git Rules
@@ -62,7 +62,19 @@ PR を作成する前であれば、自分の feature ブランチで rebase / s
 - `Thumbs.db`
 - チームで共有しない IDE 設定ファイル
 
+### 4. コミットメッセージを検証する
+
+コミットまたはamendの直前に、[commit-message-rules.md](./references/commit-message-rules.md)を全文読み、その形式と検証基準を適用する。
+
+以下をすべて満たさない限り、コミットまたはamendを実行してはならない。
+
+- Summaryが命令形のWhatを説明している。
+- 空行に続くBodyが具体的なWhyを説明している。
+- Summaryだけのコミットメッセージになっていない。
+- メッセージが英語で記述されている。
+- typeと変更内容が一致している。
+
 ## 参照
 
-- コミットする時に書きを必ず参照しなさい。
-- []()
+- コミットまたはamendの直前に必ず全文を読む。
+- [Commit Message Rules](./references/commit-message-rules.md)
