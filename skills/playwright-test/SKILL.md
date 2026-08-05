@@ -8,6 +8,7 @@ description: Playwright Testのユニット境界外テスト、ブラウザE2E�
 ## References
 
 - [Playwright best practices](references/playwright-best-practices.md): user-visible assertions, isolation, resilient locators, debugging, browser coverage, CI, and test maintenance.
+- [Playwright fixtures](references/playwright-fixtures.md): typed custom fixtures, built-in fixture overrides, Page Object injection, scope, lifecycle, and initialization order.
 
 このSkillをPlaywright関連の唯一の主エントリとして使用する。プロジェクト固有のAGENTS.md、ADR、既存設定を優先し、以下の順で作業する。
 
@@ -50,6 +51,7 @@ description: Playwright Testのユニット境界外テスト、ブラウザE2E�
 - 各テストは Arrange → Act → Assert（AAA）で構造化する。
 - テスト名は対象・条件・期待結果を含める（例: `有効な認証情報を送信すると認証済み一覧へ遷移する`）。
 - 繰り返すページ遷移・入力・クリックは、テスト近くのヘルパーまたはPage Object Modelへ抽出する。
+- POMの生成、共通setup/teardown、built-in fixtureの上書きを行う場合は、[Playwright fixtures](references/playwright-fixtures.md)を読む。
 - `e2e/helpers/`などプロジェクトの既存規約を優先し、抽象化がテストの意図を隠さないようにする。
 
 ## ユーザー中心の検証とロケーター
