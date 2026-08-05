@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pull Request Writing"
+  short_description: "リポジトリ差分とテンプレートからレビュー可能なPR本文を作成します"
+  default_prompt: "Use $pull-request-writing to create a review-ready pull request draft from the current repository changes."
