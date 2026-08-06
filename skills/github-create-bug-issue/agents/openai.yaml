@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Bug Issue"
+  short_description: "File reproducible GitHub bug reports safely"
+  default_prompt: "Use $github-create-bug-issue to investigate and file a reproducible bug report."

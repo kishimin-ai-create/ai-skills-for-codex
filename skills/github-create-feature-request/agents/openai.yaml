@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Feature Request"
+  short_description: "File problem-focused GitHub feature requests"
+  default_prompt: "Use $github-create-feature-request to draft and file a clear feature request."
