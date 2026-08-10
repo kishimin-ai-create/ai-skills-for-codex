@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync User Skills"
+  short_description: "Sync skills from .agents to .claude"
+  default_prompt: "Use $sync-user-skills to synchronize user skills from $HOME/.agents/skills to $HOME/.claude/skills."
