@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Changes"
+  short_description: "Review and create safe Git commits"
+  default_prompt: "Use $commit-changes to review the current Git changes and create a safe, reason-focused commit."
