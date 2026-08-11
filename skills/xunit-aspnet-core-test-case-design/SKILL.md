@@ -1,19 +1,22 @@
 ---
 name: xunit-aspnet-core-test-case-design
-description: Design behavior-focused, comment-only xUnit test plans for ASP.NET Core applications without writing test code. Use when deriving test TODO comments from requirements, API contracts, domain models, controllers, middleware, authentication, persistence, external HTTP integrations, or existing .NET tests; choose the smallest reliable test level and report unimplemented cases, execution evidence, and residual risks.
+description: Design and scaffold behavior-focused xUnit placeholder tests for ASP.NET Core applications. Use when deriving tests from requirements, API contracts, domain models, controllers, middleware, authentication, persistence, external HTTP integrations, or existing .NET tests; create per-subject test files with namespace, class, skipped test functions, and complete planning comments inside each function without assertions or production implementation.
 ---
 
 # xUnit ASP.NET Core Test Case Design
 
-テスト対象の実装詳細ではなく、利用者から観測できる振る舞い・事後条件・不変条件を、コメントだけの xUnit 実装計画へ落とし込む。テストコードは書かない。
+テスト対象の実装詳細ではなく、利用者から観測できる振る舞い・事後条件・不変条件を、xUnit が検出できる未実装テストの足場へ落とし込む。namespace、class、テスト関数まで作成し、関数本体には実装計画コメントだけを書く。
 
-## Comment-only constraint
+## Scaffold contract
 
-- 新規・既存を問わず、テストファイルへ追加できるのは `//` で始まるコメントだけとする。
-- `[Fact]`、`[Theory]`、テストメソッド、クラス、fixture、fake、stub、assertion、`using`、プロジェクト設定を生成・変更しない。
-- コメントにはテスト名、前提条件、操作、期待結果、必要な境界・fixture、根拠、優先度を記録する。
-- コメントを skipped test や実装済みテストとして扱わず、常に未実装として報告する。
-- 既存テストコードは設計根拠の確認と実行に限って読み取り、書き換えない。
+- 対象のモデル・サービス・Controllerなどの単位ごとに、リポジトリ規約へ従った `SubjectTests.cs` を作る。複数対象を汎用的な `TestCases.cs` へまとめない。
+- 配置から導かれるnamespaceと、ファイル名に対応する`public sealed class SubjectTests`を作る。
+- 各ケースを`public void Condition_Action_ExpectedResult()`として作り、`[Fact(Skip = "TODO: ...")]`を付ける。空の関数を成功扱いにしない。
+- Theory候補は関数内コメントへ記録する。データとassertionを実装するまでは、データなしの`[Theory]`を作らずSkipped Factを使う。
+- 各関数本体には`// ID`、`// Source`、`// Given`、`// When`、`// Then`、必要な`// Error`または`// Blocked by`、`// Priority`をすべて書く。
+- ケース計画コメントをクラス外や関数外へ置かない。
+- assertion、fixture、fake、stub、データプロバイダー、プロダクションコードは実装しない。
+- 生成した関数をすべてSkippedとして報告し、実装済み・成功・coverage対象として扱わない。
 
 ## Workflow
 
@@ -23,7 +26,7 @@ description: Design behavior-focused, comment-only xUnit test plans for ASP.NET 
 4. 状態表を作る。各ケースに ID、層、入力、操作、期待する出力・状態・副作用、根拠、優先度を記録する。
 5. 正常、代替、境界、異常、空値、型不正、ロケール、再実行、連打、並行要求、キャンセル、タイムアウト、認証・認可をリスクに応じて網羅する。
 6. 最小のテスト層を選ぶ。内部ロジックは Unit、HTTP契約は ASP.NET Core Integration、外部サービス契約は HTTP 境界の Contract、主要利用者フローだけを E2E とする。
-7. 未実装ケースを「未実装テスト一覧」として出力し、対象テストファイルへ書き込む場合はコメントだけで記録する。属性や空のテストメソッドをプレースホルダーとして作らない。
+7. 未実装ケースごとにSkipped Fact関数を作り、詳細な計画コメントを関数本体へ書く。対象単位でファイルを分ける。
 8. 既存の実装済みテストが公開契約を検証しているか読み取る。内部メソッド、private state、具体的なDI登録順、脆いJSON順序、HTML構造を根拠なく計画へ固定しない。
 9. `dotnet test` を対象プロジェクトから実行し、成功・失敗・Skipped・未実行を分けて報告する。失敗は実装・テスト・環境・仕様のいずれかに分類し、推測を原因として断定しない。
 
@@ -41,7 +44,7 @@ Unit で証明できる分岐を Integration や E2E に重複させない。た
 ## Case design rules
 
 - テスト名は「条件・操作・期待結果」を表す。例: `PostImages_WhenTextExceedsLimit_ReturnsUnprocessableEntity`。
-- データ駆動が適するケースはコメント内で Theory 候補と記録し、異なる理由の失敗を一つの曖昧なケースへまとめない。属性やテストコードは書かない。
+- データ駆動が適するケースは関数内でTheory候補と記録し、異なる理由の失敗を一つの曖昧なケースへまとめない。実装前はSkipped Factとして可視化する。
 - 文字列では空、null、空白のみ、最小、最大、最大超過、Unicode grapheme、制御文字を区別する。
 - APIではHTTP method、route、status、content type、body、error code、field、localized message、外部呼び出しの有無を必要な範囲で検証する。
 - Authentication と Authorization を分ける。未認証、認証済み・権限不足、権限ありを別ケースにする。
@@ -66,8 +69,8 @@ Unit で証明できる分岐を Integration や E2E に重複させない。た
 次の順序で簡潔に出力する。
 
 1. **Test list**: ID、テスト層、シナリオ、入力、期待結果、根拠、優先度。
-2. **Unimplemented tests**: コメントとして記録した xUnit のテスト名、実装条件、優先度。すべて未実装として扱う。
+2. **Unimplemented tests**: 作成したSkipped関数名、実装条件、優先度、ブロック理由。すべて未実装として扱う。
 3. **Layer selection**: なぜその層が最小で十分か、なぜ他層へ重複させないか。
-4. **Execution**: 既存テストの実行コマンド、対象プロジェクト、結果、失敗分類、Skipped、未実行。コメントで追加したケースは未実行として扱う。
+4. **Execution**: 実行コマンド、対象プロジェクト、成功・失敗・Skippedを分けた結果。追加した足場はSkipped件数と一致させる。
 5. **Requirement mapping**: 要件・API契約・ADRとテストケースの対応。
 6. **Residual risks**: 未検証条件、環境依存、並行性、外部サービス、仕様確認事項。

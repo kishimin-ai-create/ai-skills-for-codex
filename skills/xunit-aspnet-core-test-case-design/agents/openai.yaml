@@ -1,4 +1,4 @@
 interface:
   display_name: "xUnit ASP.NET Core Test Design"
-  short_description: "Design comment-only ASP.NET Core xUnit plans"
-  default_prompt: "Use $xunit-aspnet-core-test-case-design to add comment-only test TODOs for this ASP.NET Core feature without writing test code."
+  short_description: "Scaffold skipped ASP.NET Core xUnit test plans"
+  default_prompt: "Use $xunit-aspnet-core-test-case-design to create per-subject skipped xUnit functions with complete planning comments inside each function."

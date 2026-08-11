@@ -1,19 +1,29 @@
 # xUnit Patterns
 
-## Comment-only test shape
+## Skipped scaffold shape
 
-Record one primary behavior per planned test. Keep names explicit and stable. When writing to a test file, add comments only:
+Create one file and class per subject. Record one primary behavior per function, and place every planning comment inside that function:
 
 ```csharp
-// TODO(test): PostImages_WhenRequestIsValid_ReturnsPng
-// Given: a valid image request
-// When: the client posts the request
-// Then: the API returns PNG content with the documented metadata
-// Level: ASP.NET Core integration
-// Priority: High
+namespace Example.Api.Tests.Images;
+
+public sealed class PostImagesTests
+{
+    [Fact(Skip = "TODO: Implement from documented test plan.")]
+    public void PostImages_WhenRequestIsValid_ReturnsPng()
+    {
+        // ID: IMAGES-01
+        // Source: docs/api/images.md
+        // Given: a valid image request
+        // When: the client posts the request
+        // Then: the API returns PNG content with the documented metadata
+        // Level: ASP.NET Core integration
+        // Priority: High
+    }
+}
 ```
 
-Mark a plan as a Theory candidate in its comments when the cases share the same behavior and only data varies. Do not write attributes, data providers, methods, or assertions. Keep cases with different failure reasons separate when their observable contract differs.
+Mark a plan as a Theory candidate inside the function when cases share the same behavior and only data varies. Keep it as a skipped Fact until data and assertions are implemented. Do not add assertions, fixtures, fakes, stubs, or production implementation during scaffolding. Keep cases with different failure reasons separate when their observable contract differs.
 
 ## Assertions
 
@@ -31,16 +41,23 @@ Mark a plan as a Theory candidate in its comments when the cases share the same 
 
 ## Incomplete cases
 
-xUnit has no native `test.todo`. Use comment-only placeholders:
+xUnit has no native `test.todo`. Use a skipped function so the runner reports the case without treating an empty body as passing:
 
 ```csharp
-// TODO(test): PostImages_WhenUpstreamTimesOut_ReturnsGatewayTimeout
-// Blocked by: define the upstream timeout contract
-// Expected: return the documented timeout response without internal details
-// Priority: High
+[Fact(Skip = "TODO: Blocked until the upstream timeout contract is defined.")]
+public void PostImages_WhenUpstreamTimesOut_ReturnsGatewayTimeout()
+{
+    // ID: IMAGES-02
+    // Source: docs/api/images.md
+    // Given: the upstream request exceeds its timeout
+    // When: the client posts a valid request
+    // Then: the API returns the documented timeout response without internal details
+    // Blocked by: define the upstream timeout contract
+    // Priority: High
+}
 ```
 
-Comments are neither executable nor skipped tests. Report every comment-only placeholder as unimplemented and uncovered. Never convert it into test code unless a later user request explicitly replaces the comment-only constraint.
+Skipped functions are not passing tests or coverage. Report them separately, keep the Skip reason actionable, and remove Skip only when the test has assertions and has first been observed failing for the intended reason.
 
 ## Execution
 
