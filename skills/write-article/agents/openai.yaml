@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Article"
+  short_description: "独立した話題を抽出し複数の日本語技術記事を一括作成する"
+  default_prompt: "$write-article を使用して、指定された根拠から独立した話題をすべて抽出し、1トピック1ファイルの日本語技術記事として一括で執筆・レビューしてください。"
