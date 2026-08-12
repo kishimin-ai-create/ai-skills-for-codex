@@ -1,0 +1,4 @@
+interface:
+  display_name: "Critical Review"
+  short_description: "Challenge assumptions and label review risks"
+  default_prompt: "Use $critical-review to challenge the assumptions, label risks by confidence, and propose two alternatives."
