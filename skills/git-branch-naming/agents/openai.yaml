@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Branch Naming"
+  short_description: "Choose consistent, readable Git branch names"
+  default_prompt: "Use $git-branch-naming to choose a clear branch name for this change."

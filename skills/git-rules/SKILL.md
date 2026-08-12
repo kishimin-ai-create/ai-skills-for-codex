@@ -13,24 +13,9 @@ Git のブランチ、履歴、コミット対象を安全に管理すること�
 
 ### 1. ブランチ名を決定する
 
-ブランチ名は `{type}/{short-description}` の形式を使用する。
+ブランチの命名には `git-branch-naming` Skill を適用する。
 
-例:
-
-- `feat/add-auth`
-- `fix/null-guard`
-- `refactor/clean-interactor`
-
-description には kebab-case を使用する。
-
-type は Conventional Commits に合わせ、以下を使用する。
-
-- `feat`
-- `fix`
-- `refactor`
-- `docs`
-- `test`
-- `chore`
+ブランチ名と Conventional Commits の種別を混同しない。機能ブランチには `feature/`、機能を追加するコミットには `feat:` を使用する。
 
 ### 2. Git 履歴を保護する
 
