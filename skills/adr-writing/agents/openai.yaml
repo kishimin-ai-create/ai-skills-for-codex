@@ -1,0 +1,7 @@
+interface:
+  display_name: "ADR Writing"
+  short_description: "ユーザーの設計判断を発見し、汎用化してADRへ記録"
+  default_prompt: "Use $adr-writing to identify reusable decisions from my feedback and propose ADR candidates."
+
+policy:
+  allow_implicit_invocation: true

@@ -10,6 +10,7 @@ description: Unit、Component、Integration、API、E2Eテストで再利用で�
 ## パターン選択
 
 - 純粋関数：代表値と境界値を表形式でparameterizeする。
+- 少数の固定カタログ：公開値と期待値を直接assertionし、同じ振る舞いを複数入力で確認するときだけparameterizeする。存在しない生成経路をreflectionで推測せず、必要ならコンパイラーまたはAPI解析の境界で検証する。
 - UI：role、label、visible textなど利用者向けクエリで操作し、状態遷移とイベントを検証する。
 - 非同期：成功、loading、empty、error、retry、cancel、raceを決定的な待機で検証する。
 - HTTP：実ネットワークではなく境界をモックし、statusだけでなくheader・body・schemaを検証する。
