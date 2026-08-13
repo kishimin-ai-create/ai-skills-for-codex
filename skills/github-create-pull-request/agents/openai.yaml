@@ -1,0 +1,12 @@
+interface:
+  display_name: "Create GitHub Pull Request"
+  short_description: "Safely create a PR using prepared text and GitHub MCP"
+  default_prompt: "Use $github-create-pull-request to publish the prepared pull request through GitHub MCP."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "github"
+      description: "GitHub MCP server for branch checks, duplicate detection, and PR creation"
+      transport: "streamable_http"
+      url: "https://api.githubcopilot.com/mcp/"
