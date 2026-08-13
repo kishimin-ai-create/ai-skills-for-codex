@@ -87,6 +87,18 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - 動作確認には実行済みのコマンドと観測結果を記載し、期待値だけを成功結果として扱わない。
 - 公式資料を実際に参照した場合だけ`参考資料`へ記載する。
 
+### テンプレート5: Comparison / Evaluation
+
+複数の技術や設計を同じ目的と条件で検証し、評価軸ごとの結果、トレードオフ、条件別の推奨を示す場合は、[Comparison / Evaluation Template](assets/comparison-evaluation-template.md)を全文読んで使用する。
+
+- ファイルをそのまま出力先へ複製し、角括弧のプレースホルダーを根拠に基づく内容へ置き換える。
+- Use Case、環境、Version、要件、制約を揃え、比較結果に影響する条件を省略しない。
+- 全Optionを同じ評価軸と検証方法で比較する。Optionごとに有利な条件へ変えない。
+- 評価軸は比較の目的から定義し、結果を見てから都合よく追加・削除しない。
+- 可能な場合は計測値または観測結果を使う。未計測の性能や効果を断定しない。
+- 単一の勝者を前提にせず、前提条件ごとに適するOptionと不利になる条件を示す。
+- 比較結果を未検証の環境やUse Caseへ無条件に一般化しない。
+
 ## 記事タイプ別の要点
 
 - 技術解説：概念→最小例→失敗例→検証→適用条件。
@@ -107,3 +119,4 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - [Troubleshooting Template](assets/troubleshooting-template.md)
 - [Design Decision Template](assets/design-decision-template.md)
 - [Guide / Tutorial Template](assets/guide-tutorial-template.md)
+- [Comparison / Evaluation Template](assets/comparison-evaluation-template.md)
