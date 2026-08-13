@@ -1,6 +1,6 @@
 ---
 name: test-sizes
-description: テストをSmall、Medium、Largeへ分類し、速度ではなく依存範囲・実行環境・失敗の隔離性に基づいて配置と実行計画を決めるときに使用する。
+description: テストをSmall、Medium、Largeへ分類し、依存範囲・実行環境・失敗の隔離性に基づいてファイル命名、配置、実行計画を決めるときに使用する。
 ---
 
 # Test Sizes
@@ -20,5 +20,14 @@ description: テストをSmall、Medium、Largeへ分類し、速度ではなく
 3. サイズを上げる場合は、低層で代替できない理由と実行頻度を記録する。
 4. 各テストにサイズをタグ・ディレクトリ・命名規則で付け、CIの選択条件と一致させる。
 5. flaky、timeout、環境依存をサイズのせいにせず、原因を分離して修正する。
+
+## ファイル命名
+
+リポジトリ固有の規則を優先する。規則が未定義なら、テストサイズをファイル名とクラス名へ明示する。
+
+- C#: `SubjectSmallTests.cs` / `SubjectMediumTests.cs` / `SubjectLargeTests.cs`
+- TypeScript: `subject.small.test.ts` / `subject.medium.test.ts` / `subject.large.test.ts`
+
+1ファイルへ異なるサイズのテストを混在させない。対象が同じでも依存境界が異なる場合は、サイズごとにファイルを分ける。`Unit`や`Integration`は目的の説明に使い、サイズ表記の代わりにしない。
 
 ## 参照

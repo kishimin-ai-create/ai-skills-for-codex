@@ -1,4 +1,4 @@
 interface:
   display_name: "Test Case Design"
-  short_description: "要件から観測可能な振る舞いを網羅するテストケースを設計する"
-  default_prompt: "$test-case-design を使用して、要件からテストケースとtest.todoの計画を作成してください。"
+  short_description: "要件からサイズ別のテストケース、配置、実行計画を設計する"
+  default_prompt: "$test-case-design を使用して、要件からSmall、Medium、Large別のテストケースと未実装計画を作成してください。"
