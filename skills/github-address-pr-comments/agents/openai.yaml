@@ -1,0 +1,10 @@
+interface:
+  display_name: "Address GitHub PR Comments"
+  short_description: "Verify, fix, and reply to pull request feedback"
+  default_prompt: "Use $github-address-pr-comments to resolve actionable feedback on the current pull request."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "github"
+      description: "GitHub MCP server for pull request comments, replies, and review threads"
