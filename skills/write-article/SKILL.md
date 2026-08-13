@@ -64,6 +64,17 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - `動作確認`には修正後に実行したコマンドと観測結果だけを書く。
 - 再発防止を実施していない場合は、提案を実施済みと表現しない。
 
+### テンプレート3: Design Decision
+
+技術選定や設計判断について、背景、課題、制約、実際に検討した選択肢、評価軸、採用理由、導入後の結果、トレードオフを説明する場合は、[Design Decision Template](assets/design-decision-template.md)を全文読んで使用する。
+
+- ファイルをそのまま出力先へ複製し、角括弧のプレースホルダーを根拠に基づく内容へ置き換える。
+- 実際に存在した制約、選択肢、評価軸だけを記載し、議論を後から創作しない。
+- 比較表では全Optionを同じ評価軸で比較する。評価できない項目は推測で埋めず、未確認と示す。
+- `実装後の結果`は観測済みの結果だけを書く。導入前の記事では未実施であることを明記する。
+- 採用案の欠点と残存リスクも省略しない。
+- 関連するADRがある場合は参照し、記事を設計判断の正本として扱わない。
+
 ## 記事タイプ別の要点
 
 - 技術解説：概念→最小例→失敗例→検証→適用条件。
@@ -82,3 +93,4 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - [公開前レビュー checklist](references/review-checklist.md)
 - [Learning Log Template](assets/learning-log-template.md)
 - [Troubleshooting Template](assets/troubleshooting-template.md)
+- [Design Decision Template](assets/design-decision-template.md)
