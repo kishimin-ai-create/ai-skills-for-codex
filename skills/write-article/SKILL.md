@@ -75,6 +75,18 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - 採用案の欠点と残存リスクも省略しない。
 - 関連するADRがある場合は参照し、記事を設計判断の正本として扱わない。
 
+### テンプレート4: Guide / Tutorial
+
+読者が手順を順番に実行し、特定の技術を使った完成形へ到達するための記事を書く場合は、[Guide / Tutorial Template](assets/guide-tutorial-template.md)を全文読んで使用する。
+
+- ファイルをそのまま出力先へ複製し、角括弧のプレースホルダーを根拠に基づく内容へ置き換える。
+- 冒頭で完成形と読了後にできることを明示する。
+- 各Stepは、目的の説明、実行するコードまたはコマンド、実行後の状態の順に書く。
+- コマンドの実行場所、前提となる状態、副作用が必要なら明記する。
+- `Installation`、`Configuration`、`よくある問題`は実際に必要な場合だけ残す。遭遇していない問題を創作しない。
+- 動作確認には実行済みのコマンドと観測結果を記載し、期待値だけを成功結果として扱わない。
+- 公式資料を実際に参照した場合だけ`参考資料`へ記載する。
+
 ## 記事タイプ別の要点
 
 - 技術解説：概念→最小例→失敗例→検証→適用条件。
@@ -94,3 +106,4 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - [Learning Log Template](assets/learning-log-template.md)
 - [Troubleshooting Template](assets/troubleshooting-template.md)
 - [Design Decision Template](assets/design-decision-template.md)
+- [Guide / Tutorial Template](assets/guide-tutorial-template.md)
