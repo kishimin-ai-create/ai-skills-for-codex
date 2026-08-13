@@ -99,6 +99,18 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - 単一の勝者を前提にせず、前提条件ごとに適するOptionと不利になる条件を示す。
 - 比較結果を未検証の環境やUse Caseへ無条件に一般化しない。
 
+### テンプレート6: Retrospective / Report
+
+完了した取り組みやプロジェクトについて、当初の目的と想定、実施内容、観測結果、成功・失敗、想定との差、再利用可能な学び、次回の方針をテーマ単位で振り返る場合は、[Retrospective / Report Template](assets/retrospective-report-template.md)を全文読んで使用する。
+
+- ファイルをそのまま出力先へ複製し、角括弧のプレースホルダーを根拠に基づく内容へ置き換える。
+- 当初の想定には、開始前に実際に持っていた仮説や期待だけを書く。結果を知った後の想定を創作しない。
+- 実際の結果は、数値、テスト、ログ、利用者の反応など観測可能な事実と、そこからの推論を区別する。
+- 良かったことだけでなく、失敗、期待未達、都合の悪い結果も残す。
+- 想定との差の原因が未確認なら断定せず、確認できた範囲と未確認事項を分ける。
+- 学びは感想で終わらせず、次の技術判断や実装で再利用できる条件付きの知見にする。
+- 時系列の記録が主目的なら、このテンプレートではなく`techblog-diary`を使用する。
+
 ## 記事タイプ別の要点
 
 - 技術解説：概念→最小例→失敗例→検証→適用条件。
@@ -120,3 +132,4 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - [Design Decision Template](assets/design-decision-template.md)
 - [Guide / Tutorial Template](assets/guide-tutorial-template.md)
 - [Comparison / Evaluation Template](assets/comparison-evaluation-template.md)
+- [Retrospective / Report Template](assets/retrospective-report-template.md)
