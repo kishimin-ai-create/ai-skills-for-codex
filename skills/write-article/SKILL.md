@@ -53,6 +53,17 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - Step数は実際の検証手順に合わせて増減する。
 - 公式資料を実際に参照した場合だけ`参考資料`へ記載する。
 
+### テンプレート2: Troubleshooting
+
+実際に発生したエラーや症状について、調査仮説、確定原因、解決方法、動作確認、再発防止を記録する場合は、[Troubleshooting Template](assets/troubleshooting-template.md)を全文読んで使用する。
+
+- ファイルをそのまま出力先へ複製し、角括弧のプレースホルダーを根拠に基づく内容へ置き換える。
+- `結論`では確定した原因と実施済みの解決方法を先に示す。原因未確定なら断定しない。
+- 調査中に実際に検討した仮説だけを記載し、後からもっともらしい仮説を追加しない。
+- 採用しなかった仮説も、確認方法と否定できた結果に価値がある場合は残す。
+- `動作確認`には修正後に実行したコマンドと観測結果だけを書く。
+- 再発防止を実施していない場合は、提案を実施済みと表現しない。
+
 ## 記事タイプ別の要点
 
 - 技術解説：概念→最小例→失敗例→検証→適用条件。
@@ -70,3 +81,4 @@ pushはTechBlogの記事公開に限定して明示的に許可された処理�
 - [記事スタイルガイド](references/style-guide.md)
 - [公開前レビュー checklist](references/review-checklist.md)
 - [Learning Log Template](assets/learning-log-template.md)
+- [Troubleshooting Template](assets/troubleshooting-template.md)
