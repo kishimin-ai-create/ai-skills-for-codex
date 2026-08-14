@@ -1,0 +1,4 @@
+interface:
+  display_name: "C# Branching Design"
+  short_description: "Choose clear C# branching constructs for evolving categories"
+  default_prompt: "Use $csharp-branching-design to choose and review the branching construct for this C# mapping."
