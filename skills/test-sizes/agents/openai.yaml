@@ -1,4 +1,4 @@
 interface:
   display_name: "Test Sizes"
-  short_description: "依存範囲からテストサイズ、ファイル命名、実行計画を分類する"
-  default_prompt: "$test-sizes を使用して、テストをSmall、Medium、Largeへ分類し、サイズ別のファイル名と実行計画を作成してください。"
+  short_description: "テストサイズ分類とCI全経路のイベント別実行計画を設計する"
+  default_prompt: "$test-sizes を使用して、テストをSmall、Medium、Largeへ分類し、全CIテスト経路のイベント別filterを設計してください。"
