@@ -1,0 +1,4 @@
+interface:
+  display_name: "Protect Shared Branches"
+  short_description: "共有ブランチへの直接pushを二段階で確実に防止する"
+  default_prompt: "Use $protect-shared-branches to enforce pull-request-only updates for shared branches."

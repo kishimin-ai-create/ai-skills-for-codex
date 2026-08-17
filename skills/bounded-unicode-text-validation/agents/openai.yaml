@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bounded Unicode Text Validation"
+  short_description: "Bound Unicode validation cost without losing grapheme rules"
+  default_prompt: "Use $bounded-unicode-text-validation to design and test bounded validation for untrusted Unicode text."
