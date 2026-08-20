@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix Non-ADR Configuration"
+  short_description: "Safely fix configuration and workflow defects"
+  default_prompt: "Use $non-adr-config-fix to diagnose and safely fix a configuration issue that does not require an ADR."

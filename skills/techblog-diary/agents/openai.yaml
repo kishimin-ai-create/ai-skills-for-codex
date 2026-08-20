@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write and Publish TechBlog Diary"
+  short_description: "Record work and push the diary to a TechBlog work branch"
+  default_prompt: "Use $techblog-diary to record this work, commit it, and push it to a TechBlog work branch."

@@ -1,4 +1,4 @@
 interface:
   display_name: "xUnit ASP.NET Core Test Design"
-  short_description: "Scaffold skipped ASP.NET Core xUnit test plans"
-  default_prompt: "Use $xunit-aspnet-core-test-case-design to create per-subject skipped xUnit functions with complete planning comments inside each function."
+  short_description: "サイズ別のASP.NET Core xUnitテスト計画と足場を作成する"
+  default_prompt: "$xunit-aspnet-core-test-case-design を使用して、Small、Medium、Large別のxUnitテストファイルとSkippedテスト計画を作成してください。"

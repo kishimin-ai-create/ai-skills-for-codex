@@ -1,0 +1,4 @@
+interface:
+  display_name: "Explain xUnit Test"
+  short_description: "指定されたxUnitテストコードを日本語で構造的に説明"
+  default_prompt: "Use $explain-xunit-test to explain the specified xUnit test file in Japanese."

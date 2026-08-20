@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync CI Protection Checks"
+  short_description: "Align GitHub required checks with event-specific CI jobs."
+  default_prompt: "Inspect CI workflow events and update branch protection required checks so only checks generated for the protected event are required."

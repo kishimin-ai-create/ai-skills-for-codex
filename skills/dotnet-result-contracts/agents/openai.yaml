@@ -1,0 +1,4 @@
+interface:
+  display_name: ".NET Result Contracts"
+  short_description: "Enforce valid Result variants and binary value semantics"
+  default_prompt: "Use $dotnet-result-contracts to design or review a .NET Result type and its payload value semantics."

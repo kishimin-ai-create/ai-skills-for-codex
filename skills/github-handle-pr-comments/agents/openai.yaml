@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handle GitHub PR Comments"
+  short_description: "Reply to PR feedback and apply verified fixes"
+  default_prompt: "Use $github-handle-pr-comments to address unresolved review comments on the current pull request."

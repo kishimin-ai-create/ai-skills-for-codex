@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR候補判定"
+  short_description: "スレッド内の指摘や指示がADRに値するかを根拠付きで判定"
+  default_prompt: "$assess-adr-candidate を使って、このスレッドの指摘や指示からADR候補を判定してください。"

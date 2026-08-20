@@ -1,0 +1,4 @@
+interface:
+  display_name: "Explain ASP.NET Core Code"
+  short_description: "Explain ASP.NET Core code and request flow clearly"
+  default_prompt: "Use $explain-aspnet-core-code to explain the specified ASP.NET Core code in Japanese."

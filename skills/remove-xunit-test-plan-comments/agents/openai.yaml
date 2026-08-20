@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remove xUnit Test Plan Comments"
+  short_description: "実装済みxUnitテストから計画コメントだけを安全に削除"
+  default_prompt: "Use $remove-xunit-test-plan-comments to remove obsolete test-plan comments from the specified xUnit tests."

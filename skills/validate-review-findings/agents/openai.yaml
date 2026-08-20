@@ -1,0 +1,4 @@
+interface:
+  display_name: "Validate Review Findings"
+  short_description: "仕様とADRに照らしてレビュー指摘の成立条件を検証する"
+  default_prompt: "Use $validate-review-findings to verify whether these review findings are actionable defects."
