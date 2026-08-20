@@ -1,0 +1,4 @@
+interface:
+  display_name: "React Branching Design"
+  short_description: "Choose type-safe React conditional rendering patterns"
+  default_prompt: "Use $react-branching-design to select and review an appropriate React conditional rendering pattern."
