@@ -7,6 +7,8 @@ description: Synchronize shared user skills between $HOME/.agents/skills and $HO
 
 Keep `$HOME/.agents/skills` and `$HOME/.claude/skills` equal while preserving whichever copy of each Skill advanced.
 
+After reconciliation, `$HOME/.agents/skills` remains the Git-managed canonical copy for review and publication; a newer Claude-side edit is first imported there rather than maintained as a second source of truth.
+
 ## Safety rules
 
 - Resolve both paths from `$HOME`; do not embed a user-specific absolute path.
