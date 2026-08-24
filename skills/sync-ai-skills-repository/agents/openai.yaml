@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync AI Skills Repository"
+  short_description: "Safely reconcile local and remote Skill history"
+  default_prompt: "Use $sync-ai-skills-repository to synchronize $HOME/.agents with its configured upstream without overwriting divergence."

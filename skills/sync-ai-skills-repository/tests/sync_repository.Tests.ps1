@@ -57,12 +57,16 @@ Describe 'sync_repository.ps1' {
         git -C $seed commit -m 'remote' | Out-Null
         git -C $seed push | Out-Null
 
-        { & $scriptPath -RepositoryPath $local } | Should Throw
+        $threw = $false
+        try { & $scriptPath -RepositoryPath $local } catch { $threw = $true }
+        $threw | Should Be $true
     }
 
     It 'stops when the worktree is dirty' {
         Set-Content -LiteralPath (Join-Path $local 'SKILL.md') -Value 'dirty'
 
-        { & $scriptPath -RepositoryPath $local } | Should Throw
+        $threw = $false
+        try { & $scriptPath -RepositoryPath $local } catch { $threw = $true }
+        $threw | Should Be $true
     }
 }

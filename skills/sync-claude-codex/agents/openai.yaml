@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync Claude and Codex"
+  short_description: "Preserve the newer shared instruction file"
+  default_prompt: "Use $sync-claude-codex to reconcile CLAUDE.md and AGENTS.md from whichever file advanced."

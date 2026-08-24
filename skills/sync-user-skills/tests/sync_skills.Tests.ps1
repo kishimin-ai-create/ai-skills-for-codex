@@ -46,6 +46,8 @@ Describe 'sync_skills.ps1 bidirectional synchronization' {
         (Get-Item -LiteralPath (Join-Path $left 'delta\SKILL.md')).LastWriteTimeUtc = $same
         (Get-Item -LiteralPath (Join-Path $right 'delta\SKILL.md')).LastWriteTimeUtc = $same
 
-        { & $scriptPath -SourcePath $left -DestinationPath $right } | Should Throw
+        $threw = $false
+        try { & $scriptPath -SourcePath $left -DestinationPath $right } catch { $threw = $true }
+        $threw | Should Be $true
     }
 }
