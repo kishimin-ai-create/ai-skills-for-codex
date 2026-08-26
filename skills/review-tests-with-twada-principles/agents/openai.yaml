@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Tests with T-Wada Principles"
+  short_description: "T-WadaのTDD原則でテストケースをレビューする"
+  default_prompt: "Use $review-tests-with-twada-principles to review these test cases and prioritize actionable findings."
