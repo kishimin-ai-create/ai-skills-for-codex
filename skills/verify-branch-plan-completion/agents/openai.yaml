@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Branch Plan Completion"
+  short_description: "Audit planned branch work with repository evidence"
+  default_prompt: "Use $verify-branch-plan-completion to audit whether the current branch plan is complete."

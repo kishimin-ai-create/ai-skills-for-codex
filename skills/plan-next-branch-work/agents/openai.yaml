@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Next Branch Work"
+  short_description: "Create the next planned branch and its work checklist"
+  default_prompt: "Use $plan-next-branch-work to create the next branch from the implementation plan and write its work document."
