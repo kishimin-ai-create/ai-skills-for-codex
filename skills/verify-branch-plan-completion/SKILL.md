@@ -39,3 +39,9 @@ Write `branch-plans/<branch-file-stem>.completion.md` next to the branch work do
 - the exact next action needed for each non-passing item.
 
 Do not edit implementation files or mark task boxes complete unless the user separately asks. Do not commit or push. Report the overall result and completion-report path.
+
+## Recommend the next action
+
+Rank non-passing items by prerequisite order, impact on the completion gate, and how much later work they unblock. Select one concrete, bounded item as the recommended next action; do not merely repeat the full remaining-work list.
+
+Include that recommendation and its reason in both the completion report and the final response. If the branch is complete, recommend the next plan-defined integration or branch workflow without executing it.
