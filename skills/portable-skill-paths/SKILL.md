@@ -10,7 +10,7 @@ Use this skill when a Skill contains file names, input paths, output paths, or m
 ## Workflow
 
 1. Run `scripts/audit_skill_paths.py <skills-root>` and inspect the report.
-2. Classify each reference as canonical (`$HOME`, `$CODEX_HOME`), project-relative, machine-specific, generated, or uncertain.
+2. Classify each reference as canonical (`$HOME`, `$CODEX_HOME`), project-relative, machine-specific, runtime-fixed (for example, a container's `/workspace`), generated, or uncertain.
 3. Replace only machine-specific and reusable project-specific references with placeholders. Preserve canonical configuration paths and examples whose meaning is not a filesystem path.
 4. Use placeholders consistently: `<HOME>`, `<CODEX_HOME>`, `<AGENTS_SKILLS_ROOT>`, `<PROJECT_ROOT>`, `<REPO_ROOT>`, `<WORK_LOG_ROOT>`, `<BRANCH_SLUG>`, and `<DATE>`.
 5. Make filenames parameterized (for example, `<PROJECT>-<BRANCH_SLUG>.md`) and document how `/` is converted to `-`.

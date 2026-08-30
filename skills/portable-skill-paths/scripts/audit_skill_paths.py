@@ -7,11 +7,13 @@ import re
 from pathlib import Path
 
 PATH_PATTERN = re.compile(
-    r"(?:[A-Za-z]:[\\/][^\s`'\"]+|/(?:Users|home|workspace|workspaces)/[^\s`'\"]+|\$(?:HOME|CODEX_HOME)(?:[/\\][^\s`'\"]+)?)"
+    r"(?<![A-Za-z])(?:[A-Za-z]:[\\/][^\s`'\"]+|/(?:Users|home|workspace|workspaces)/[^\s`'\"]+|\$(?:HOME|CODEX_HOME)(?:[/\\][^\s`'\"]+)?)"
 )
 def classify(reference: str) -> str:
     if reference.startswith("$HOME") or reference.startswith("$CODEX_HOME"):
         return "canonical"
+    if reference.startswith(("/workspace/", "/workspaces/")):
+        return "runtime-fixed"
     if reference.startswith(("/Users/", "/home/")) or re.match(r"^[A-Za-z]:[\\/]", reference):
         return "machine-specific"
     return "review"
