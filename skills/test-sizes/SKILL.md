@@ -64,10 +64,20 @@ description: GoogleのSmall、Medium、Large定義に基づき、テストが実
 
 ## CI実行計画
 
+リポジトリが別のスケジュールを明示していない場合は、次の累積スケジュールを使用する。
+
+| サイズ | 実行イベント |
+| --- | --- |
+| Small | push、pull_request、nightly（schedule）、workflow_dispatch |
+| Medium | pull_request、nightly（schedule）、workflow_dispatch |
+| Large | nightly（schedule）、workflow_dispatch |
+
+Smallはpushから、MediumはPull Requestから、Largeはnightlyまたは手動実行から対象に加える。後の段階では、それ以前に対象となった小さいサイズも実行する。
+
 1. workflow内でtest runnerを起動するstepをすべて列挙する。通常テストだけでなく、coverage、reporting、mutationなども含める。
-2. Pull Request、push、schedule、手動実行ごとに、プロジェクトが許可するテストサイズを確認する。
+2. push、Pull Request、nightly、手動実行ごとに、上記の累積スケジュールまたはプロジェクトが明示したスケジュールを確認する。
 3. test runnerを起動する各stepへ、イベントで許可されたサイズだけを選ぶfilterまたはtag条件を適用する。
 4. coverageが全サイズを必要とする場合も、高頻度イベントのfilterを外さず、全体coverage用の低頻度jobを別に設計する。
 5. 通常テストのmatrixと、テストを起動する補助jobのfilterを別々に検証する。
 
-CIの実行頻度はGoogle Testing Blogの分類表には含まれない。push、Pull Request、nightlyなどへの割り当ては、対象リポジトリのADR、CI設定、運用要件から決める。
+CIの実行頻度はGoogle Testing Blogの分類表には含まれない。対象リポジトリのADR、CI設定、運用要件が上記と異なるスケジュールを明示している場合は、プロジェクト固有の決定を優先する。
