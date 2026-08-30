@@ -1,0 +1,3 @@
+interface:
+  display_name: "Work Session Log"
+  short_description: "Record resumable work and prompt history"
