@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lint Feasibility Assessment"
+  short_description: "Assess whether a coding rule can be enforced by lint"
+  default_prompt: "Assess whether this rule can be enforced by lint, and recommend the narrowest reliable enforcement."
