@@ -25,6 +25,8 @@ CI workflowのイベント条件と、共有ブランチ保護の必須status ch
 
 ## 判断基準
 
+- 「変更が進んだ側」は更新時刻ではなく、保護対象イベントで現在実際に生成されるworkflow/check-runの集合とする。Rulesetはその実行可能な集合へ合わせる。
+- workflow条件とRulesetが双方で独立に変更され、意図を一意に判断できない場合は自動更新せず競合として報告する。
 - PRで実行されないMediumやLargeをPRの必須checkにしない。
 - テストサイズの実行時期はプロジェクトのテストサイズADRを正とする。
 - 必須checkの同期はjob名の見た目ではなく、実際のworkflow条件とcheck-runの両方で検証する。

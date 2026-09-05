@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remove TypeScript Test Plan Comments"
+  short_description: "実装済みTypeScriptテストから計画コメントだけを削除する"
+  default_prompt: "Use $remove-typescript-test-plan-comments to remove obsolete planning comments from this implemented TypeScript test file."

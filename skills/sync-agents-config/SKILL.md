@@ -1,15 +1,15 @@
 ---
 name: sync-agents-config
-description: Synchronize a Git-managed AGENTS.md from a dedicated repository with $HOME/.codex/AGENTS.md. Use when creating, pulling, reviewing, or publishing a standalone AGENTS.md configuration repository without changing an application repository or using .gitignore to hide its structure.
+description: Synchronize a Git-managed AGENTS.md with $HOME/.codex/AGENTS.md. Use when either copy may have advanced and the newer content must be preserved while remote Git history remains protected.
 ---
 
 # Sync Agents Config
 
-Treat the dedicated repository's root `AGENTS.md` as the only source of truth. Copy it to `$HOME/.codex/AGENTS.md` after a pull or local update, and verify both files match.
+Keep the dedicated repository's root `AGENTS.md` and `$HOME/.codex/AGENTS.md` equal. After fetching the repository, compare hashes and update times and copy the changed/newer file over the older one. Equal timestamps with different content are a conflict and must not be resolved automatically.
 
 Default the dedicated repository to `$HOME/agents-config` when the user does not provide another path. Do not create or modify an application repository, `.gitignore`, or a remote repository unless the user explicitly requests that separate action.
 
-## Sync from the repository
+## Determine the synchronization direction
 
 1. Resolve the dedicated repository path and confirm it is the intended repository.
 2. Confirm the repository contains the expected root file and inspect its status:
@@ -21,21 +21,23 @@ Default the dedicated repository to `$HOME/agents-config` when the user does not
    git ls-files
    ```
 
-3. Pull only after confirming the remote and branch are correct. Never force-push, rewrite shared history, or push automatically:
+3. Fetch and compare the current branch with its upstream. Fast-forward only when the remote is ahead. If both sides advanced, stop before comparing files:
 
    ```powershell
    git remote -v
-   git pull --ff-only
+   git fetch --prune
+   git rev-list --left-right --count HEAD...@{upstream}
    ```
 
-4. Copy the repository file to Codex's active configuration:
+4. Compare hashes. If they differ, use `LastWriteTimeUtc` to select the newer file. If times are equal, stop as a conflict.
+5. Copy the newer file to the older location. For example, repository to active configuration:
 
    ```powershell
    Copy-Item -LiteralPath "$HOME\agents-config\AGENTS.md" `
      -Destination "$HOME\.codex\AGENTS.md" -Force
    ```
 
-5. Verify the copy using hashes:
+6. Verify the copy using hashes:
 
    ```powershell
    (Get-FileHash "$HOME\agents-config\AGENTS.md").Hash
@@ -44,11 +46,12 @@ Default the dedicated repository to `$HOME/agents-config` when the user does not
 
 The hashes must match before reporting synchronization complete.
 
-## Publish a local update
+## Repository-ahead handling
 
-1. Edit only the repository's root `AGENTS.md`.
-2. Review the diff and confirm the file contains no secrets, tokens, personal data, or machine-specific absolute paths. Use `$HOME/...` for user-home paths.
-3. Confirm only `AGENTS.md` is tracked or changed:
+When `$HOME/.codex/AGENTS.md` is newer, copy it into the repository and review the resulting diff. Commit only the repository's root `AGENTS.md`.
+
+1. Review the diff and confirm the file contains no secrets, tokens, personal data, or machine-specific absolute paths. Use `$HOME/...` for user-home paths.
+2. Confirm only `AGENTS.md` is tracked or changed:
 
    ```powershell
    git status --short
@@ -56,20 +59,20 @@ The hashes must match before reporting synchronization complete.
    git ls-files
    ```
 
-4. Commit with a reason-focused message, for example:
+3. Commit with a reason-focused message, for example:
 
    ```powershell
    git add AGENTS.md
    git commit -m "docs: update shared agent instructions"
    ```
 
-5. Do not run `git push` automatically. Provide the exact push command for the user to review and run:
+4. Do not run `git push` automatically. Provide the exact push command for the user to review and run:
 
    ```powershell
    git push origin <branch>
    ```
 
-6. After the user confirms the remote update, run the sync step above if the local Codex file should reflect the committed version.
+5. After the user confirms the remote update, fetch and verify that the repository, upstream, and active file agree.
 
 ## Initialize a dedicated repository
 

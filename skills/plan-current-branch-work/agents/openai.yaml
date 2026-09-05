@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Current Branch Work"
+  short_description: "Extract the current branch scope into a work checklist"
+  default_prompt: "Use $plan-current-branch-work to write the current branch work document from the implementation plan."

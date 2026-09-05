@@ -1,91 +1,101 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    [Parameter(Mandatory)]
-    [string]$SourcePath,
-
-    [Parameter(Mandatory)]
-    [string]$DestinationPath,
-
+    [Parameter(Mandatory)][string]$SourcePath,
+    [Parameter(Mandatory)][string]$DestinationPath,
     [switch]$PruneStale
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$source = (Resolve-Path -LiteralPath $SourcePath).Path
-$performedAction = $false
-if (-not (Test-Path -LiteralPath $DestinationPath)) {
-    if ($PSCmdlet.ShouldProcess($DestinationPath, 'Create destination skills directory')) {
-        New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
-        $performedAction = $true
-    }
-}
-
-$skillDirectories = @(Get-ChildItem -LiteralPath $source -Directory)
-$destinationDirectories = if (Test-Path -LiteralPath $DestinationPath) {
-    @(Get-ChildItem -LiteralPath $DestinationPath -Directory)
-} else {
-    @()
-}
-
-foreach ($skillDirectory in $skillDirectories) {
-    $target = Join-Path $DestinationPath $skillDirectory.Name
-    if ($PSCmdlet.ShouldProcess($target, "Copy skill '$($skillDirectory.Name)'")) {
-        New-Item -ItemType Directory -Path $target -Force | Out-Null
-        Get-ChildItem -LiteralPath $skillDirectory.FullName -Force | Copy-Item -Destination $target -Recurse -Force
-        $performedAction = $true
-    }
-    Write-Output "SYNC $($skillDirectory.Name)"
-}
-
 if ($PruneStale) {
-    $sourceNames = @($skillDirectories.Name)
-    foreach ($destinationDirectory in $destinationDirectories) {
-        if ($destinationDirectory.Name -notin $sourceNames) {
-            if ($PSCmdlet.ShouldProcess($destinationDirectory.FullName, "Remove stale skill '$($destinationDirectory.Name)'")) {
-                Remove-Item -LiteralPath $destinationDirectory.FullName -Recurse -Force
-                $performedAction = $true
-            }
-            Write-Output "PRUNE $($destinationDirectory.Name)"
-        }
-    }
+    throw '-PruneStale is incompatible with bidirectional synchronization. Remove a skill explicitly after reviewing both sides.'
 }
 
-$sourceFiles = @(Get-ChildItem -LiteralPath $source -File -Recurse | ForEach-Object {
-    $_.FullName.Substring($source.Length).TrimStart('\')
-})
-$destinationFiles = if (Test-Path -LiteralPath $DestinationPath) {
-    @(Get-ChildItem -LiteralPath $DestinationPath -File -Recurse | ForEach-Object {
-        $_.FullName.Substring($DestinationPath.Length).TrimStart('\')
+function Get-DirectorySnapshot {
+    param([Parameter(Mandatory)][string]$Path)
+    $files = @(Get-ChildItem -LiteralPath $Path -File -Recurse | Sort-Object FullName)
+    $entries = @($files | ForEach-Object {
+        $relative = $_.FullName.Substring($Path.Length).TrimStart('\', '/')
+        "$relative=$((Get-FileHash -LiteralPath $_.FullName).Hash)"
     })
+    $latest = if ($files.Count -gt 0) {
+        ($files | Measure-Object -Property LastWriteTimeUtc -Maximum).Maximum
+    } else {
+        (Get-Item -LiteralPath $Path).LastWriteTimeUtc
+    }
+    [pscustomobject]@{ Digest = $entries -join "`n"; Latest = [datetime]$latest }
+}
+
+function Copy-SkillDirectory {
+    param(
+        [Parameter(Mandatory)][string]$From,
+        [Parameter(Mandatory)][string]$To,
+        [Parameter(Mandatory)][string]$Direction
+    )
+    if (-not $PSCmdlet.ShouldProcess($To, "$Direction '$([IO.Path]::GetFileName($From))'")) { return }
+    if (Test-Path -LiteralPath $To) { Remove-Item -LiteralPath $To -Recurse -Force }
+    New-Item -ItemType Directory -Path $To -Force | Out-Null
+    Get-ChildItem -LiteralPath $From -Force | Copy-Item -Destination $To -Recurse -Force
+}
+
+$source = (Resolve-Path -LiteralPath $SourcePath).Path
+if (-not (Test-Path -LiteralPath $DestinationPath)) {
+    if ($PSCmdlet.ShouldProcess($DestinationPath, 'Create synchronization directory')) {
+        New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
+    }
+}
+$destination = if (Test-Path -LiteralPath $DestinationPath) {
+    (Resolve-Path -LiteralPath $DestinationPath).Path
 } else {
-    @()
+    [IO.Path]::GetFullPath($DestinationPath)
 }
 
-$missing = @($sourceFiles | Where-Object { $_ -notin $destinationFiles })
-$extra = @()
-if ($PruneStale) {
-    $extra = @($destinationFiles | Where-Object { $_ -notin $sourceFiles })
-}
+$sourceDirectories = @(Get-ChildItem -LiteralPath $source -Directory)
+$destinationDirectories = if (Test-Path -LiteralPath $destination) { @(Get-ChildItem -LiteralPath $destination -Directory) } else { @() }
+$sourceNames = @($sourceDirectories | ForEach-Object { $_.Name })
+$destinationNames = @($destinationDirectories | ForEach-Object { $_.Name })
+$names = @(($sourceNames + $destinationNames) | Sort-Object -Unique)
 
-if ($performedAction -and ($missing.Count -gt 0 -or $extra.Count -gt 0)) {
-    throw "Verification failed. Missing: $($missing -join ', '); Extra: $($extra -join ', ')"
-}
+foreach ($name in $names) {
+    $sourceSkill = Join-Path $source $name
+    $destinationSkill = Join-Path $destination $name
+    $sourceExists = Test-Path -LiteralPath $sourceSkill
+    $destinationExists = Test-Path -LiteralPath $destinationSkill
 
-if ($performedAction) {
-    foreach ($relativePath in $sourceFiles) {
-        $sourceFile = Join-Path $source $relativePath
-        $destinationFile = Join-Path $DestinationPath $relativePath
-        $sourceHash = (Get-FileHash -LiteralPath $sourceFile).Hash
-        $destinationHash = (Get-FileHash -LiteralPath $destinationFile).Hash
-        if ($sourceHash -ne $destinationHash) {
-            throw "Verification failed for '$relativePath'."
-        }
+    if ($sourceExists -and -not $destinationExists) {
+        Copy-SkillDirectory -From $sourceSkill -To $destinationSkill -Direction 'COPY SOURCE_TO_DESTINATION'
+        Write-Output "SOURCE_TO_DESTINATION $name"
+        continue
+    }
+    if ($destinationExists -and -not $sourceExists) {
+        Copy-SkillDirectory -From $destinationSkill -To $sourceSkill -Direction 'COPY DESTINATION_TO_SOURCE'
+        Write-Output "DESTINATION_TO_SOURCE $name"
+        continue
+    }
+
+    $sourceSnapshot = Get-DirectorySnapshot -Path $sourceSkill
+    $destinationSnapshot = Get-DirectorySnapshot -Path $destinationSkill
+    if ($sourceSnapshot.Digest -eq $destinationSnapshot.Digest) {
+        Write-Output "IN_SYNC $name"
+    } elseif ($sourceSnapshot.Latest -gt $destinationSnapshot.Latest) {
+        Copy-SkillDirectory -From $sourceSkill -To $destinationSkill -Direction 'COPY SOURCE_TO_DESTINATION'
+        Write-Output "SOURCE_TO_DESTINATION $name"
+    } elseif ($destinationSnapshot.Latest -gt $sourceSnapshot.Latest) {
+        Copy-SkillDirectory -From $destinationSkill -To $sourceSkill -Direction 'COPY DESTINATION_TO_SOURCE'
+        Write-Output "DESTINATION_TO_SOURCE $name"
+    } else {
+        throw "Conflict in '$name': content differs but the newest timestamps are equal."
     }
 }
 
-if (-not $performedAction) {
-    Write-Output 'PREVIEW OK'
-} else {
-    Write-Output 'VERIFY OK'
+if ($WhatIfPreference) { Write-Output 'PREVIEW OK'; return }
+
+foreach ($name in $names) {
+    $sourceSnapshot = Get-DirectorySnapshot -Path (Join-Path $source $name)
+    $destinationSnapshot = Get-DirectorySnapshot -Path (Join-Path $destination $name)
+    if ($sourceSnapshot.Digest -ne $destinationSnapshot.Digest) {
+        throw "Verification failed for '$name'."
+    }
 }
+Write-Output 'VERIFY OK'

@@ -1,18 +1,23 @@
 ---
 name: sync-user-skills
-description: Synchronize user skills from $HOME/.agents/skills to $HOME/.claude/skills. Use when adding, updating, reviewing, or mirroring skills shared by Codex and Claude Code, especially when the .agents directory is the source of truth.
+description: Synchronize shared user skills between $HOME/.agents/skills and $HOME/.claude/skills. Use when either copy may have advanced and the newer skill directory must be preserved without hiding conflicts.
 ---
 
 # Sync User Skills
 
-Treat `$HOME/.agents/skills` as the source of truth and mirror its skill directories into `$HOME/.claude/skills`.
+Keep `$HOME/.agents/skills` and `$HOME/.claude/skills` equal while preserving whichever copy of each Skill advanced.
+
+After reconciliation, `$HOME/.agents/skills` remains the Git-managed canonical copy for review and publication; a newer Claude-side edit is first imported there rather than maintained as a second source of truth.
 
 ## Safety rules
 
 - Resolve both paths from `$HOME`; do not embed a user-specific absolute path.
 - Review source and destination status before copying. Preserve unrelated existing changes.
 - Copy only skill directories. Do not copy files placed directly in either skills root.
-- Do not delete destination-only skills unless the user explicitly requests a complete mirror.
+- A directory present on only one side is a new Skill and is copied to the other side; it is not treated as a deletion.
+- For a Skill present on both sides, compare content hashes first and the newest recursive file timestamp second. Copy the newer directory over the older one.
+- If content differs but newest timestamps are equal, stop and report a conflict. Do not choose a side.
+- Do not infer deletion from absence. Remove a Skill only through a separate explicit deletion request.
 - Do not commit or push automatically. If either directory is Git-managed, show the diff and let the user review the commit.
 
 ## Synchronize
@@ -35,13 +40,13 @@ Treat `$HOME/.agents/skills` as the source of truth and mirror its skill directo
 
 4. After reviewing the preview, run the same command without `-WhatIf`. The script creates the destination and replaces matching destination skill directories with the source versions.
 
-5. For a complete mirror, use `-PruneStale` only after confirming every destination-only skill may be removed. This is destructive and must never be the default.
+5. The legacy `-PruneStale` switch is rejected because absence cannot distinguish a deletion from a newly added Skill on the other side.
 
-6. Verify synchronization with a recursive file comparison. Report the source of truth, copied skills, preserved destination-only skills, any pruned skills, and the verification result.
+6. Verify synchronization with recursive path and content hashes. Report the direction chosen for each changed Skill and any conflicts.
 
 ## Verify
 
-Use the bundled script's verification output, then independently confirm that every source file has the same relative path and content in the destination. Treat any mismatch as a failed synchronization.
+Use the bundled script's verification output, then independently confirm that both roots contain the same Skill directories and that corresponding relative paths and hashes match. Treat any mismatch as a failed synchronization.
 
 ## Commit handling
 

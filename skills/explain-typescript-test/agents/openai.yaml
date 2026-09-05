@@ -1,0 +1,4 @@
+interface:
+  display_name: "Explain TypeScript Test"
+  short_description: "TypeScriptテストの構造と保証内容を日本語で説明する"
+  default_prompt: "Use $explain-typescript-test to explain this TypeScript test file in Japanese."

@@ -10,6 +10,8 @@
 
 - [ ] 適切なテストレベルを選択した
 - [ ] outlineでは実装ロジックを書かずit.todoだけを使った
+- [ ] 各`test.todo`の直前に`ID`、`Source`、`Given`、`When`、`Then`、必要な`Error`または`Blocked by`、`Priority`がある
+- [ ] 計画コメントを複数ケースの共通位置へまとめず、対応するtodoへ隣接させた
 - [ ] implementでは既存のdescribe構造とケース名を維持した
 - [ ] 各ケースが1つの主要な振る舞いを検証する
 

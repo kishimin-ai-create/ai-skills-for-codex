@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Incident Report"
+  short_description: "AI事故の原因・検出漏れ・再発防止を体系的に記録する"
+  default_prompt: "Use $write-ai-incident-report to create an evidence-based AI incident report and codify prevention measures."
