@@ -1,0 +1,4 @@
+interface:
+  display_name: "README Writing"
+  short_description: "リポジトリの実ファイルを根拠に、バッジ・目次・構成表・手順・Troubleshootingを備えたREADME.mdを作成します"
+  default_prompt: "Use $readme-writing to create or update README.md from the actual contents of this repository."
