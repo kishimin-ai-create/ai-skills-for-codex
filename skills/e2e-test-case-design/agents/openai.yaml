@@ -1,0 +1,4 @@
+interface:
+  display_name: "E2E Test Case Design"
+  short_description: "Design assertion-free Playwright E2E test scaffolds"
+  default_prompt: "Design Playwright E2E test cases without assertions or implementation."
