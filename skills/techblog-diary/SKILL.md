@@ -1,6 +1,6 @@
 ---
 name: techblog-diary
-description: リポジトリでの一連の作業をTechBlogの日付フォルダへ日本語の日誌としてまとめ、レビュー・コミットして作業ブランチへpushする。ユーザーが「日誌」「作業日誌」「開発ログ」「今日の作業をまとめて」「TechBlogに書いて」などと依頼したときに使用する。
+description: リポジトリでの一連の作業をTechBlogの日付フォルダへ日本語の日誌としてまとめ、レビュー・コミットしてmainへ直接pushする。ユーザーが「日誌」「作業日誌」「開発ログ」「今日の作業をまとめて」「TechBlogに書いて」などと依頼したときに使用する。
 ---
 
 # TechBlog Diary
@@ -100,9 +100,10 @@ description: リポジトリでの一連の作業をTechBlogの日付フォル�
 - Markdownファイルが実際に保存されている（保存前に「作成済み」と報告しない）。
 - TechBlogのリポジトリルート、`origin`、現在ブランチ、upstream、差分を確認している。
 - 日誌と必要な訂正だけをstageし、`git-rules`に従う`docs:`コミットを作成している。既に正しくコミット済みなら重複コミットしない。
-- `main`などの共有ブランチへ直接pushしていない。共有ブランチ上なら`docs/<short-description>`形式の作業ブランチを作成している。
-- 作業ブランチと同名のremote refを明示してforceなしでpushし、ローカルHEADとremote branchのSHA一致を確認している。
+- `origin`の正規化したURLが`github.com/kishimin-test/tech_blog`で、現在のブランチが`main`であることを確認している。一致しなければpushしていない。
+- `git fetch origin`後、ローカル`main`が`origin/main`を含むことを確認している。リモートにのみ存在するコミット、競合、無関係なローカル変更がある場合は、自動的に上書き・force pushせず停止している。
+- 作業ブランチを作成せず、`main`から`main`へのrefを明示してforceなしで直接pushし、ローカルHEADと`origin/main`のSHA一致を確認している。
 - 保存したファイルパス、対象範囲、根拠（コミットハッシュ、実行したコマンドと結果）、push先、未確認事項をユーザーに報告する。
 - 既存の同日ファイルを上書きしていない。
 
-pushはTechBlogの日誌公開に限定して明示的に許可された処理である。題材となったリポジトリや共有ブランチへpushしてはならない。push失敗またはSHA不一致の場合は、公開済みと報告しない。
+`main`への直接pushは、`github.com/kishimin-test/tech_blog`へのTechBlog日誌公開に限定して明示的に許可された処理である。題材となったリポジトリやその他の共有ブランチへpushしてはならない。push失敗またはSHA不一致の場合は、公開済みと報告しない。
