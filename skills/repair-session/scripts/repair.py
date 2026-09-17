@@ -1,6 +1,7 @@
 """Extract agent-session evidence and prepare reversible instruction repairs."""
 
 from contextlib import ExitStack, contextmanager
+import argparse
 import codecs
 import difflib
 import hashlib
@@ -543,3 +544,63 @@ def update_files(case, results=None, approved_revision=None, rollback=False):
         manifest["status"] = "applied"
         save(case / "case.json", manifest)
         return manifest
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
+    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
+
+    inspect = commands.add_parser("inspect")
+    inspect.add_argument("session")
+    inspect.add_argument("--codex-home", type=Path, default=codex_home)
+    inspect.add_argument("--claude-home", type=Path, default=claude_home)
+    inspect.add_argument("--state", type=Path)
+
+    stage_command = commands.add_parser("stage")
+    stage_command.add_argument("case", type=Path)
+    stage_command.add_argument("files", nargs="+", type=Path)
+    stage_command.add_argument("--plan", required=True, type=Path)
+
+    seal_command = commands.add_parser("seal")
+    seal_command.add_argument("case", type=Path)
+
+    apply_command = commands.add_parser("apply")
+    apply_command.add_argument("case", type=Path)
+    apply_command.add_argument("--results", required=True, type=Path)
+    apply_command.add_argument("--approved-revision", required=True)
+
+    rollback_command = commands.add_parser("rollback")
+    rollback_command.add_argument("case", type=Path)
+
+    args = parser.parse_args(argv)
+    try:
+        if args.command == "inspect":
+            result = inspect_session(
+                args.session,
+                args.codex_home,
+                args.claude_home,
+                args.state,
+            )
+        elif args.command == "stage":
+            result = stage(args.case, args.files, args.plan)
+        elif args.command == "seal":
+            result = seal(args.case)
+        elif args.command == "apply":
+            result = update_files(
+                args.case,
+                read(args.results),
+                approved_revision=args.approved_revision,
+            )
+        else:
+            result = update_files(args.case, rollback=True)
+        print(json.dumps(result, ensure_ascii=False))
+        return int(result.get("status") == "rollback_conflict")
+    except (OSError, ValueError, KeyError, TypeError, SyntaxError) as error:
+        print(f"Error: {error}")
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
