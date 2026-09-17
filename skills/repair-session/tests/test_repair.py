@@ -1,4 +1,6 @@
 import importlib.util
+from contextlib import redirect_stdout
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -190,6 +192,37 @@ class RepairTests(unittest.TestCase):
         self.assertTrue((case / "results.json").exists())
         self.assertEqual(repair.update_files(case, rollback=True)["status"], "rolled_back")
         self.assertEqual(source.read_text(encoding="utf-8"), "Read the first record.\n")
+
+    def test_cli_inspect_accepts_both_agent_home_paths(self):
+        session_id = "00000000-0000-0000-0000-000000000004"
+        trace = self.claude_home / "projects" / "project" / f"{session_id}.jsonl"
+        self.write_jsonl(
+            trace,
+            [
+                {
+                    "type": "user",
+                    "sessionId": session_id,
+                    "message": {"role": "user", "content": "Repair this session."},
+                }
+            ],
+        )
+
+        output = io.StringIO()
+        with redirect_stdout(output):
+            exit_code = repair.main(
+                [
+                    "inspect",
+                    session_id,
+                    "--codex-home",
+                    str(self.codex_home),
+                    "--claude-home",
+                    str(self.claude_home),
+                ]
+            )
+
+        result = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(result["tool"], "claude")
 
 
 if __name__ == "__main__":
