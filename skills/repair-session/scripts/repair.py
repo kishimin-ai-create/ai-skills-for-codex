@@ -161,15 +161,89 @@ def parse_codex(records, gaps):
     return {"metadata": metadata, "gaps": gaps, "events": events or fallback}
 
 
+def parse_claude(records, gaps):
+    metadata = {}
+    events = []
+    for line, record in records:
+        record_type = record.get("type")
+        if record_type not in {"user", "assistant"}:
+            continue
+        metadata.update(
+            {
+                key: record[key]
+                for key in ("sessionId", "cwd", "gitBranch")
+                if key in record
+            }
+        )
+        message = record.get("message")
+        if not isinstance(message, dict):
+            gaps.append({"line": line, "reason": "invalid_message"})
+            continue
+        role = message.get("role")
+        content = message.get("content", "")
+        if isinstance(content, str):
+            if role in {"user", "assistant"}:
+                events.append({"line": line, "kind": role, "text": content})
+            continue
+        if not isinstance(content, list):
+            gaps.append({"line": line, "reason": "invalid_content"})
+            continue
+        text_parts = [
+            item["text"]
+            for item in content
+            if isinstance(item, dict)
+            and item.get("type") == "text"
+            and isinstance(item.get("text"), str)
+        ]
+        if text_parts and role in {"user", "assistant"}:
+            events.append(
+                {"line": line, "kind": role, "text": "\n".join(text_parts)}
+            )
+        for item in content:
+            if not isinstance(item, dict):
+                continue
+            item_type = item.get("type")
+            if item_type == "tool_use":
+                events.append(
+                    {
+                        "line": line,
+                        "kind": "tool_use",
+                        **{
+                            key: item[key]
+                            for key in ("id", "name", "input")
+                            if key in item
+                        },
+                    }
+                )
+            elif item_type == "tool_result":
+                events.append(
+                    {
+                        "line": line,
+                        "kind": "tool_result",
+                        **{
+                            key: item[key]
+                            for key in ("tool_use_id", "content", "is_error")
+                            if key in item
+                        },
+                    }
+                )
+    require(events, "No supported conversation events found")
+    return {"metadata": metadata, "gaps": gaps, "events": events}
+
+
 def inspect_session(value, codex_home, claude_home, state=None):
     codex_home = Path(codex_home).expanduser().resolve()
     claude_home = Path(claude_home).expanduser().resolve()
     source, tool, records, gaps = find_session(value, codex_home, claude_home)
-    require(tool == "codex", "Claude Code parsing is not implemented yet")
-    evidence = parse_codex(records, gaps)
+    evidence = (
+        parse_codex(records, gaps)
+        if tool == "codex"
+        else parse_claude(records, gaps)
+    )
     evidence["source"] = str(source)
     evidence["tool"] = tool
-    case_root = Path(state).expanduser().resolve() if state else codex_home / "agent-repair"
+    default_home = codex_home if tool == "codex" else claude_home
+    case_root = Path(state).expanduser().resolve() if state else default_home / "agent-repair"
     case = case_root / uuid.uuid4().hex
     save(case / "session.json", evidence)
     save(case / "case.json", {"status": "inspected", "tool": tool, "files": []})
