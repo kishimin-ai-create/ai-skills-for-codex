@@ -224,6 +224,66 @@ class RepairTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(result["tool"], "claude")
 
+    def test_repair_rejects_credentials_path_escape_and_changed_sources(self):
+        session_id = "00000000-0000-0000-0000-000000000005"
+        trace = self.codex_home / "sessions" / f"rollout-{session_id}.jsonl"
+        self.write_jsonl(
+            trace,
+            [
+                {
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"text": "Repair the skill."}],
+                    },
+                }
+            ],
+        )
+        case = Path(
+            repair.inspect_session(session_id, self.codex_home, self.claude_home)[
+                "case"
+            ]
+        )
+        plan = self.root / "plan.json"
+        repair.save(
+            plan,
+            [
+                {"name": kind, "kind": kind, "check": "Observe expected behavior."}
+                for kind in ("source", "similar", "regression")
+            ],
+        )
+        credential = self.root / ".credentials.json"
+        credential.write_text('{"token":"secret"}', encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "credential"):
+            repair.stage(case, [credential], plan)
+
+        source = self.root / "skill" / "SKILL.md"
+        source.parent.mkdir()
+        source.write_text("Before\n", encoding="utf-8")
+        manifest = repair.stage(case, [source], plan)
+        candidate = case / "candidate" / manifest["files"][0]["name"]
+        candidate.write_text("After\n", encoding="utf-8")
+        revision = repair.seal(case)["revision"]
+        results = {
+            "revision": revision,
+            "reviewed": True,
+            "checks": [
+                {
+                    "name": kind,
+                    "before": [kind == "regression"],
+                    "after": [True],
+                    "evidence": "Observed in an isolated fixture.",
+                }
+                for kind in ("source", "similar", "regression")
+            ],
+        }
+        source.write_text("Intervening edit\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Source changed"):
+            repair.update_files(case, results, approved_revision=revision)
+        with self.assertRaisesRegex(ValueError, "escapes"):
+            repair.copy_file(case, "candidate", {"name": "../../outside.txt"})
+
 
 if __name__ == "__main__":
     unittest.main()
