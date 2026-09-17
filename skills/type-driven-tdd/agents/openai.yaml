@@ -1,0 +1,4 @@
+interface:
+  display_name: "型によるテスト駆動開発"
+  short_description: "型エラーをRedにして利用側から抽象を設計する"
+  default_prompt: "Use $type-driven-tdd to design this typed API from its usage code."
