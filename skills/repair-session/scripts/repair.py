@@ -1,9 +1,14 @@
 """Extract agent-session evidence and prepare reversible instruction repairs."""
 
+from contextlib import ExitStack, contextmanager
+import codecs
+import difflib
+import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import stat
 import tempfile
 import uuid
 
@@ -11,6 +16,7 @@ import uuid
 SESSION_ID = re.compile(
     r"(?i)\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b"
 )
+REPO = Path(__file__).resolve().parents[1]
 
 
 def require(condition, message):
@@ -18,7 +24,15 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def write(path, data):
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def read(path):
+    return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def write(path, data, mode=None):
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(dir=path.parent)
     try:
@@ -26,6 +40,8 @@ def write(path, data):
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
+        if mode is not None:
+            os.chmod(temporary, mode)
         os.replace(temporary, path)
     finally:
         if os.path.exists(temporary):
@@ -34,6 +50,53 @@ def write(path, data):
 
 def save(path, value):
     write(path, (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode())
+
+
+def plain_path(path):
+    path = path.absolute()
+    for part in (path, *path.parents):
+        is_reparse_point = (
+            part.exists()
+            and getattr(part.lstat(), "st_file_attributes", 0)
+            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+        )
+        require(not part.is_symlink() and not is_reparse_point, "Links are not repair targets")
+    return path.resolve()
+
+
+def private(path):
+    path = plain_path(path.expanduser())
+    require(not path.is_relative_to(REPO), "Keep case data outside this skill")
+    return path
+
+
+@contextmanager
+def lock(path):
+    directory = Path(tempfile.gettempdir()) / "agent-repair-locks"
+    directory.mkdir(exist_ok=True)
+    key = hashlib.sha256(os.path.normcase(str(path.resolve())).encode()).hexdigest()
+    with (directory / key).open("a+b") as handle:
+        handle.seek(0, 2)
+        if not handle.tell():
+            handle.write(b"0")
+            handle.flush()
+        handle.seek(0)
+        if os.name == "nt":
+            import msvcrt
+
+            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        try:
+            yield
+        finally:
+            if os.name == "nt":
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def load_records(path):
@@ -243,7 +306,7 @@ def inspect_session(value, codex_home, claude_home, state=None):
     evidence["source"] = str(source)
     evidence["tool"] = tool
     default_home = codex_home if tool == "codex" else claude_home
-    case_root = Path(state).expanduser().resolve() if state else default_home / "agent-repair"
+    case_root = private(Path(state)) if state else private(default_home / "agent-repair")
     case = case_root / uuid.uuid4().hex
     save(case / "session.json", evidence)
     save(case / "case.json", {"status": "inspected", "tool": tool, "files": []})
@@ -254,3 +317,229 @@ def inspect_session(value, codex_home, claude_home, state=None):
         "events": len(evidence["events"]),
         "gaps": gaps,
     }
+
+
+def stage(case, sources, plan):
+    case = private(Path(case))
+    require(read(case / "case.json")["status"] == "inspected", "Start a new case before staging files")
+    checks = read(Path(plan))
+    require(isinstance(checks, list) and checks, "Plan must be a list of checks")
+    require(
+        {check["kind"] for check in checks} == {"source", "similar", "regression"},
+        "Plan needs source, similar and regression checks",
+    )
+    require(
+        len({check["name"] for check in checks}) == len(checks)
+        and all(check["name"] and check["check"] for check in checks),
+        "Checks need unique names and descriptions",
+    )
+    sources = [plain_path(Path(source).expanduser()) for source in sources]
+    require(sources, "Supply at least one file")
+    bases = {
+        source.anchor: Path(
+            os.path.commonpath(
+                [str(item.parent) for item in sources if item.anchor == source.anchor]
+            )
+        )
+        for source in sources
+    }
+    groups = {anchor: f"{index:02d}" for index, anchor in enumerate(sorted(bases))}
+    files = []
+    seen = set()
+    for source in sources:
+        require(source.is_file() and source not in seen, "Supply distinct existing files")
+        require(not source.is_relative_to(case), "A case copy cannot be a source")
+        require(
+            not any(
+                part.startswith(".env")
+                or part in {".git", "auth.json", "credentials.json", ".credentials.json"}
+                for part in source.parts
+            )
+            and source.suffix.lower() not in {".pem", ".key"},
+            "Do not stage credential or Git files",
+        )
+        seen.add(source)
+        raw = source.read_bytes()
+        require(len(raw) <= 500_000 and b"\0" not in raw, "Only small UTF-8 text files are supported")
+        raw.decode("utf-8-sig")
+        name = groups[source.anchor] + "/" + source.relative_to(bases[source.anchor]).as_posix()
+        for version in ("original", "candidate"):
+            write(case / version / name, raw)
+        files.append(
+            {
+                "source": str(source),
+                "name": name,
+                "before": sha(source),
+                "mode": stat.S_IMODE(source.stat().st_mode),
+            }
+        )
+    save(case / "plan.json", checks)
+    manifest = {
+        "status": "staged",
+        "tool": read(case / "case.json")["tool"],
+        "files": files,
+        "plan_sha256": sha(case / "plan.json"),
+    }
+    save(case / "case.json", manifest)
+    return manifest
+
+
+def copy_file(case, version, entry):
+    root = (case / version).resolve()
+    path = plain_path(root / entry["name"])
+    require(path.is_relative_to(root), "Copy path escapes the case")
+    return path
+
+
+def seal(case):
+    case = private(Path(case))
+    manifest = read(case / "case.json")
+    require(manifest["status"] in {"staged", "sealed"}, "Case cannot be sealed")
+    require(sha(case / "plan.json") == manifest["plan_sha256"], "Test plan changed")
+    patch = []
+    for entry in manifest["files"]:
+        original = copy_file(case, "original", entry)
+        candidate = copy_file(case, "candidate", entry)
+        require(sha(original) == entry["before"], "Original copy changed")
+        raw = candidate.read_bytes()
+        text = raw.decode("utf-8-sig")
+        require(len(raw) <= 650_000 and "\0" not in text, "Invalid candidate text")
+        if original.read_bytes().startswith(codecs.BOM_UTF8) and not raw.startswith(codecs.BOM_UTF8):
+            write(candidate, codecs.BOM_UTF8 + raw)
+            raw = candidate.read_bytes()
+        if candidate.suffix == ".py":
+            compile(text, str(candidate), "exec")
+        entry["after"] = sha(candidate)
+        patch.extend(
+            difflib.unified_diff(
+                original.read_text(encoding="utf-8-sig").splitlines(True),
+                candidate.read_text(encoding="utf-8-sig").splitlines(True),
+                fromfile="original/" + entry["name"],
+                tofile="candidate/" + entry["name"],
+            )
+        )
+    require(any(entry["before"] != entry["after"] for entry in manifest["files"]), "No file changes")
+    write(case / "changes.patch", "".join(patch).encode())
+    manifest["status"] = "sealed"
+    manifest["revision"] = uuid.uuid4().hex
+    save(case / "case.json", manifest)
+    return {"revision": manifest["revision"], "diff": str(case / "changes.patch")}
+
+
+def validate_results(case, manifest, results):
+    require(
+        results.get("revision") == manifest["revision"] and results.get("reviewed") is True,
+        "Results must review this sealed revision",
+    )
+    require(sha(case / "plan.json") == manifest["plan_sha256"], "Test plan changed")
+    plan = {check["name"]: check for check in read(case / "plan.json")}
+    checks = results.get("checks", [])
+    require(
+        len(checks) == len(plan) and {check["name"] for check in checks} == plan.keys(),
+        "Results must cover every planned check",
+    )
+    improved = False
+    for check in checks:
+        before = check["before"]
+        after = check["after"]
+        require(
+            isinstance(before, list)
+            and isinstance(after, list)
+            and before
+            and len(before) == len(after)
+            and all(type(value) is bool for value in before + after),
+            "Use equally sized lists of boolean trial results",
+        )
+        require(
+            isinstance(check.get("evidence"), str) and check["evidence"].strip(),
+            "Record observed evidence for each check",
+        )
+        require(sum(after) >= sum(before), "A planned check regressed")
+        if plan[check["name"]]["kind"] == "source":
+            require(all(after), "The original failure remains")
+            improved |= sum(after) > sum(before)
+    require(improved, "No demonstrated improvement on the original failure")
+
+
+def purge_directory(path):
+    if not path.exists():
+        return
+    require(path.is_dir() and not path.is_symlink(), "Sensitive-data directory is invalid")
+    descendants = sorted(path.rglob("*"), key=lambda item: len(item.parts), reverse=True)
+    for descendant in descendants:
+        require(not descendant.is_symlink(), "Sensitive-data directory contains a link")
+        descendant.rmdir() if descendant.is_dir() else descendant.unlink()
+    path.rmdir()
+
+
+def purge_sensitive(case):
+    session = case / "session.json"
+    if session.exists():
+        require(session.is_file() and not session.is_symlink(), "Session evidence path is invalid")
+        session.unlink()
+    purge_directory(case / "samples")
+
+
+def rollback_locked(case, manifest):
+    conflicts = []
+    for entry in reversed(manifest["files"]):
+        try:
+            source = plain_path(Path(entry["source"]))
+            if sha(source) == entry["before"]:
+                continue
+            require(sha(source) == entry["after"], "Source was edited later")
+            backup = copy_file(case, "original", entry)
+            require(sha(backup) == entry["before"], "Backup changed")
+            write(source, backup.read_bytes(), entry["mode"])
+        except (OSError, ValueError) as error:
+            conflicts.append({"file": entry["source"], "error": str(error)})
+    manifest.update(status="rollback_conflict" if conflicts else "rolled_back", conflicts=conflicts)
+    save(case / "case.json", manifest)
+    return manifest
+
+
+def update_files(case, results=None, approved_revision=None, rollback=False):
+    case = private(Path(case))
+    with ExitStack() as stack:
+        stack.enter_context(lock(case))
+        manifest = read(case / "case.json")
+        for source in sorted({entry["source"] for entry in manifest["files"]}):
+            stack.enter_context(lock(Path(source)))
+        if rollback:
+            require(
+                manifest["status"] in {"applying", "applied", "rollback_conflict", "rolled_back"},
+                "This case has not written files",
+            )
+            return rollback_locked(case, manifest)
+        require(manifest["status"] == "sealed", "Seal and test the candidate before applying")
+        require(
+            approved_revision is not None and approved_revision == manifest["revision"],
+            "Explicit approval must name the sealed revision",
+        )
+        validate_results(case, manifest, results)
+        for entry in manifest["files"]:
+            require(sha(plain_path(Path(entry["source"]))) == entry["before"], "Source changed after staging")
+            require(sha(copy_file(case, "original", entry)) == entry["before"], "Backup changed")
+            require(sha(copy_file(case, "candidate", entry)) == entry["after"], "Candidate changed after sealing")
+        save(case / "results.json", results)
+        manifest["status"] = "applying"
+        save(case / "case.json", manifest)
+        try:
+            for entry in manifest["files"]:
+                if entry["before"] == entry["after"]:
+                    continue
+                source = plain_path(Path(entry["source"]))
+                candidate = copy_file(case, "candidate", entry)
+                require(sha(source) == entry["before"] and sha(candidate) == entry["after"], "Files changed during application")
+                write(source, candidate.read_bytes(), entry["mode"])
+            require(
+                all(sha(Path(entry["source"])) == entry["after"] for entry in manifest["files"]),
+                "Applied files do not match the tested revision",
+            )
+            purge_sensitive(case)
+        except Exception:
+            rollback_locked(case, manifest)
+            raise
+        manifest["status"] = "applied"
+        save(case / "case.json", manifest)
+        return manifest
