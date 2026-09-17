@@ -2,4 +2,3 @@ interface:
   display_name: "Repair Session"
   short_description: "Repair agent instructions from failed sessions"
   default_prompt: "Use $repair-session to diagnose this failed agent session and propose a verified instruction repair."
-

@@ -120,4 +120,3 @@ Keep the report concise and separate:
 - applied revision or case ID;
 - retained rollback assets and purged sensitive evidence;
 - unresolved risks or pending external updates.
-
