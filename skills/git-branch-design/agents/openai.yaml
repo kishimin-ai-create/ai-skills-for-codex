@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Branch Design"
+  short_description: "設計書でブランチ責任と統合順を明確化"
+  default_prompt: "Use $git-branch-design to create a Git branch design document from this implementation plan."
