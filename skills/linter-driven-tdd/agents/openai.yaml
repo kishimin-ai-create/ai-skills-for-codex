@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linterによるテスト駆動開発"
+  short_description: "Lint違反をRedにして設計パターンを段階的に導入する"
+  default_prompt: "Use $linter-driven-tdd to drive this refactoring from an enforceable lint rule."
