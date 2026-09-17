@@ -284,6 +284,38 @@ class RepairTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "escapes"):
             repair.copy_file(case, "candidate", {"name": "../../outside.txt"})
 
+    def test_external_prompt_completion_requires_case_approval_and_purges_evidence(self):
+        session_id = "00000000-0000-0000-0000-000000000006"
+        trace = self.codex_home / "sessions" / f"rollout-{session_id}.jsonl"
+        self.write_jsonl(
+            trace,
+            [
+                {
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"text": "Repair the automation prompt."}],
+                    },
+                }
+            ],
+        )
+        case = Path(
+            repair.inspect_session(session_id, self.codex_home, self.claude_home)[
+                "case"
+            ]
+        )
+        repair.save(case / "samples" / "trial.json", {"output": "sensitive sample"})
+
+        with self.assertRaisesRegex(ValueError, "approval"):
+            repair.complete_external(case)
+
+        completed = repair.complete_external(case, approved_case=case.name)
+
+        self.assertEqual(completed["status"], "external_applied")
+        self.assertFalse((case / "session.json").exists())
+        self.assertFalse((case / "samples").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
