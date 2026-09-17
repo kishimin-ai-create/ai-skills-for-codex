@@ -481,6 +481,20 @@ def purge_sensitive(case):
     purge_directory(case / "samples")
 
 
+def complete_external(case, approved_case=None):
+    case = private(Path(case))
+    manifest = read(case / "case.json")
+    require(manifest["status"] == "inspected", "External completion needs an inspected case")
+    require(
+        approved_case is not None and approved_case == case.name,
+        "Explicit approval must name the case",
+    )
+    purge_sensitive(case)
+    manifest["status"] = "external_applied"
+    save(case / "case.json", manifest)
+    return manifest
+
+
 def rollback_locked(case, manifest):
     conflicts = []
     for entry in reversed(manifest["files"]):
@@ -574,6 +588,10 @@ def main(argv=None):
     rollback_command = commands.add_parser("rollback")
     rollback_command.add_argument("case", type=Path)
 
+    complete_command = commands.add_parser("complete-external")
+    complete_command.add_argument("case", type=Path)
+    complete_command.add_argument("--approved-case", required=True)
+
     args = parser.parse_args(argv)
     try:
         if args.command == "inspect":
@@ -593,8 +611,10 @@ def main(argv=None):
                 read(args.results),
                 approved_revision=args.approved_revision,
             )
-        else:
+        elif args.command == "rollback":
             result = update_files(args.case, rollback=True)
+        else:
+            result = complete_external(args.case, args.approved_case)
         print(json.dumps(result, ensure_ascii=False))
         return int(result.get("status") == "rollback_conflict")
     except (OSError, ValueError, KeyError, TypeError, SyntaxError) as error:
