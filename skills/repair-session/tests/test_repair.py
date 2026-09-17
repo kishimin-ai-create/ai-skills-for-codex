@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "repair.py"
@@ -315,6 +316,134 @@ class RepairTests(unittest.TestCase):
         self.assertEqual(completed["status"], "external_applied")
         self.assertFalse((case / "session.json").exists())
         self.assertFalse((case / "samples").exists())
+
+    def test_partial_application_failure_restores_every_written_source(self):
+        session_id = "00000000-0000-0000-0000-000000000007"
+        trace = self.codex_home / "sessions" / f"rollout-{session_id}.jsonl"
+        self.write_jsonl(
+            trace,
+            [
+                {
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"text": "Repair both instruction files."}],
+                    },
+                }
+            ],
+        )
+        case = Path(
+            repair.inspect_session(session_id, self.codex_home, self.claude_home)[
+                "case"
+            ]
+        )
+        first = self.root / "skill" / "SKILL.md"
+        second = self.root / "agent" / "agent.md"
+        first.parent.mkdir()
+        second.parent.mkdir()
+        first.write_text("First before\n", encoding="utf-8")
+        second.write_text("Second before\n", encoding="utf-8")
+        plan = self.root / "plan.json"
+        repair.save(
+            plan,
+            [
+                {"name": kind, "kind": kind, "check": "Observe expected behavior."}
+                for kind in ("source", "similar", "regression")
+            ],
+        )
+        manifest = repair.stage(case, [first, second], plan)
+        for entry in manifest["files"]:
+            candidate = case / "candidate" / entry["name"]
+            candidate.write_text(
+                candidate.read_text(encoding="utf-8").replace("before", "after"),
+                encoding="utf-8",
+            )
+        revision = repair.seal(case)["revision"]
+        results = {
+            "revision": revision,
+            "reviewed": True,
+            "checks": [
+                {
+                    "name": kind,
+                    "before": [kind == "regression"],
+                    "after": [True],
+                    "evidence": "Observed in an isolated fixture.",
+                }
+                for kind in ("source", "similar", "regression")
+            ],
+        }
+        real_write = repair.write
+
+        def fail_second_source(path, data, mode=None):
+            if path == second:
+                raise OSError("Simulated second-source failure")
+            return real_write(path, data, mode)
+
+        with patch.object(repair, "write", side_effect=fail_second_source):
+            with self.assertRaisesRegex(OSError, "second-source"):
+                repair.update_files(case, results, approved_revision=revision)
+
+        self.assertEqual(first.read_text(encoding="utf-8"), "First before\n")
+        self.assertEqual(second.read_text(encoding="utf-8"), "Second before\n")
+        self.assertEqual(repair.read(case / "case.json")["status"], "rolled_back")
+
+    def test_rollback_preserves_later_source_edits(self):
+        session_id = "00000000-0000-0000-0000-000000000008"
+        trace = self.codex_home / "sessions" / f"rollout-{session_id}.jsonl"
+        self.write_jsonl(
+            trace,
+            [
+                {
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"text": "Repair the instruction file."}],
+                    },
+                }
+            ],
+        )
+        case = Path(
+            repair.inspect_session(session_id, self.codex_home, self.claude_home)[
+                "case"
+            ]
+        )
+        source = self.root / "skill" / "SKILL.md"
+        source.parent.mkdir()
+        source.write_text("Before\n", encoding="utf-8")
+        plan = self.root / "plan.json"
+        repair.save(
+            plan,
+            [
+                {"name": kind, "kind": kind, "check": "Observe expected behavior."}
+                for kind in ("source", "similar", "regression")
+            ],
+        )
+        manifest = repair.stage(case, [source], plan)
+        candidate = case / "candidate" / manifest["files"][0]["name"]
+        candidate.write_text("After\n", encoding="utf-8")
+        revision = repair.seal(case)["revision"]
+        results = {
+            "revision": revision,
+            "reviewed": True,
+            "checks": [
+                {
+                    "name": kind,
+                    "before": [kind == "regression"],
+                    "after": [True],
+                    "evidence": "Observed in an isolated fixture.",
+                }
+                for kind in ("source", "similar", "regression")
+            ],
+        }
+        repair.update_files(case, results, approved_revision=revision)
+        source.write_text("Later edit\n", encoding="utf-8")
+
+        rolled_back = repair.update_files(case, rollback=True)
+
+        self.assertEqual(rolled_back["status"], "rollback_conflict")
+        self.assertEqual(source.read_text(encoding="utf-8"), "Later edit\n")
 
 
 if __name__ == "__main__":
