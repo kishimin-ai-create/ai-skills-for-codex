@@ -125,6 +125,72 @@ class RepairTests(unittest.TestCase):
         ])
         self.assertNotIn("private-thought", json.dumps(session))
 
+    def test_apply_requires_revision_approval_purges_session_and_can_rollback(self):
+        session_id = "00000000-0000-0000-0000-000000000003"
+        trace = self.codex_home / "sessions" / f"rollout-{session_id}.jsonl"
+        self.write_jsonl(
+            trace,
+            [
+                {
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"text": "Repair the skill."}],
+                    },
+                }
+            ],
+        )
+        case = Path(
+            repair.inspect_session(session_id, self.codex_home, self.claude_home)[
+                "case"
+            ]
+        )
+        source = self.root / "skill" / "SKILL.md"
+        source.parent.mkdir()
+        source.write_text("Read the first record.\n", encoding="utf-8")
+        plan = self.root / "plan.json"
+        repair.save(
+            plan,
+            [
+                {"name": kind, "kind": kind, "check": "Observe expected behavior."}
+                for kind in ("source", "similar", "regression")
+            ],
+        )
+        manifest = repair.stage(case, [source], plan)
+        candidate = case / "candidate" / manifest["files"][0]["name"]
+        candidate.write_text("Read every record.\n", encoding="utf-8")
+        sample = case / "samples" / "trial.json"
+        repair.save(sample, {"output": "sensitive sample"})
+        revision = repair.seal(case)["revision"]
+        results = {
+            "revision": revision,
+            "reviewed": True,
+            "checks": [
+                {
+                    "name": kind,
+                    "before": [kind == "regression"],
+                    "after": [True],
+                    "evidence": "Observed in an isolated fixture.",
+                }
+                for kind in ("source", "similar", "regression")
+            ],
+        }
+
+        with self.assertRaisesRegex(ValueError, "approval"):
+            repair.update_files(case, results)
+        self.assertEqual(source.read_text(encoding="utf-8"), "Read the first record.\n")
+
+        applied = repair.update_files(case, results, approved_revision=revision)
+
+        self.assertEqual(applied["status"], "applied")
+        self.assertEqual(source.read_text(encoding="utf-8"), "Read every record.\n")
+        self.assertFalse((case / "session.json").exists())
+        self.assertFalse((case / "samples").exists())
+        self.assertTrue((case / "results.json").exists())
+        self.assertEqual(repair.update_files(case, rollback=True)["status"], "rolled_back")
+        self.assertEqual(source.read_text(encoding="utf-8"), "Read the first record.\n")
+
 
 if __name__ == "__main__":
     unittest.main()
