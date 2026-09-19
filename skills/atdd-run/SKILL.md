@@ -7,6 +7,10 @@ description: 要件定義書を入力として、PRDと受け入れ条件へ分�
 
 要件定義書 1 つを入口として、完成まで自律的に回すための手順。
 
+**受け入れ条件がすでに GitHub Issue にある場合は、このSkillを使わない。** `issue-loop` を使う。
+`docs/ACCEPTANCE.md` を作れば、同じ受け入れ条件がIssueと文書の2か所に並び、必ず片方が古くなる。
+このSkillの入口は、まだIssueへ分解されていない要件定義書である。
+
 ```text
 要件定義書
     ↓  ステップ1（人間の確認あり）
@@ -21,7 +25,8 @@ AT RED → Inner Loop → AT GREEN → 次のAC → 完了
 | --- | --- |
 | `/atdd-run <要件定義書のパス>` | 対話セッションで開始する |
 | `/goal <条件>` | ユーザーが入力し、条件を満たすまで自律的に回す |
-| `/loop` | `.claude/loop.md` に従い、中断した作業を定期的に再開する |
+| `/loop /atdd-run <パス>` | 中断した作業を一定間隔で再開する |
+| 定期タスク | このSkillを呼ぶプロンプトを登録し、無人で再開する |
 | `claude -p "/atdd-run <パス>" --permission-mode acceptEdits` | 無人実行 |
 
 `/goal` と `/loop` はユーザーが入力するもので、Agentからは設定できない。
