@@ -31,6 +31,24 @@ Windowsのファイルシステムは区別しないため、`ACCEPTANCE/` と�
 想定外の失敗時は許可する。このガードの不具合が全リポジトリの編集を止める事態のほうが、
 取りこぼしより損害が大きく、取りこぼしは検出側で捕捉できる。
 
+## 予防その2: ロール別のPreToolUse hook
+
+`$HOME/.claude/hooks/atdd-role-guard.mjs` を、atdd-agent と tdd-agent の frontmatter の
+`hooks.PreToolUse` から役割引数付きで呼び出す。コミット状態を見る前述のhookと違い、
+**役割の境界そのもの**を強制する。
+
+| 役割 | 引数 | 拒否する操作 |
+| --- | --- | --- |
+| atdd-agent | `acceptance` | `acceptance/` と `.atdd/` 以外へのWrite・Edit |
+| tdd-agent | `implementation` | `acceptance/` 配下へのWrite・Edit、および `acceptance` を含む変更系Bashコマンド |
+
+2つを併用する理由は、守る対象が異なるためである。コミット状態のhookは「確定したATを誰も変えない」
+ことを守り、ロール別hookは「ATを書く主体と実装する主体が互いの領域へ入らない」ことを守る。
+後者は確定前のATにも効くため、Outer Red の途中で実装側がATを書き換えることも防げる。
+
+照合は大文字小文字を区別しない。`.atdd/` を許可しているのは、要件変更時の解除手順が
+この位置にファイルを作ることを求めているためである。
+
 ## 検出: git による無改変検証
 
 hookは `Edit` / `Write` / `NotebookEdit` しか見ない。Bash経由の書き換え（`sed`、リダイレクト、`git checkout`）は素通りする。
