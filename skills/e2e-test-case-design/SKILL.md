@@ -41,7 +41,7 @@ PlaywrightによるE2Eテストを、実装前に検討・追跡できる未実�
 - 連打、再送、キャンセル、古い応答、ルート遷移、キーボード操作
 - ダウンロード、ファイル名、レスポンシブ表示、404、ErrorBoundary復旧
 
-各ケースは入力条件、ユーザー操作、利用者が確認できる結果、根拠、優先度を持つ。同じ画面でも検証する振る舞いが異なる場合は分け、実装詳細やDOM構造をテスト名・Thenへ書かない。
+各ケースは入力条件、ユーザー操作、利用者が確認できる結果、根拠、優先度を持つ。同じ画面でも検証する振る舞いが異なる場合は分け、実装詳細やDOM構造をテスト名・Assertへ書かない。
 
 ## アサートなしの足場
 
@@ -51,9 +51,9 @@ PlaywrightにはVitestの`test.todo`がないため、未実装ケースは`test
 test.skip("downloads a PNG for the standard image type", async ({ page }) => {
   // ID: IMAGE-GENERATION-E2E-S-001
   // Source: docs/v1/ui/ui.md § 6, § 8, § 10
-  // Given: The real API is available and the form contains valid values
-  // When: The user selects the standard image type and submits the form
-  // Then: A generated PNG is downloaded automatically
+  // Arrange: The real API is available and the form contains valid values
+  // Act: The user selects the standard image type and submits the form
+  // Assert: A generated PNG is downloaded automatically
   // Blocked by: E2E service lifecycle
   // Priority: P0
 });
@@ -61,7 +61,7 @@ test.skip("downloads a PNG for the standard image type", async ({ page }) => {
 
 ルール:
 
-- `// ID`、`// Source`、`// Given`、`// When`、`// Then`、必要な`// Error`または`// Blocked by`、`// Priority`をこの順で、対象ケースの本体内へ書く。
+- `// ID`、`// Source`、`// Arrange`、`// Act`、`// Assert`、必要な`// Error`または`// Blocked by`、`// Priority`をこの順で、対象ケースの本体内へ書く。
 - IDはファイル内で一意にする。テスト名には優先度やIDを重複して埋め込まない。
 - `expect`、`page.route`、MSW、API stub、fixture、ダウンロード保存処理、セレクター、入力値プロバイダーは計画段階では書かない。
 - APIをモックしたケースを実API接続のE2Eとして記述しない。モックが必要な場合は別のテスト層として扱う。

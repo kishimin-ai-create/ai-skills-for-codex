@@ -1,6 +1,6 @@
 ---
 name: remove-xunit-test-plan-comments
-description: 指定されたC#のxUnitテストから、実装前の追跡用に残された`ID`、`Source`、`Given`、`When`、`Then`、`Error`、`Blocked by`、`Priority`形式の計画コメントだけを削除する。実装済みTests.csの冗長なテスト計画コメントを整理し、通常の理由コメントやSkip中の未実装計画を保護したいときに使用する。
+description: 指定されたC#のxUnitテストから、実装前の追跡用に残された`ID`、`Source`、`Arrange`、`Act`、`Assert`、`Error`、`Blocked by`、`Priority`形式の計画コメントだけを削除する。実装済みTests.csの冗長なテスト計画コメントを整理し、通常の理由コメントやSkip中の未実装計画を保護したいときに使用する。
 ---
 
 # Remove xUnit Test Plan Comments
@@ -13,9 +13,9 @@ description: 指定されたC#のxUnitテストから、実装前の追跡用に
 
 - `ID:`
 - `Source:`
-- `Given:`
-- `When:`
-- `Then:`
+- `Arrange:`
+- `Act:`
+- `Assert:`
 - `Error:`
 - `Blocked by:`
 - `Priority:`
@@ -23,6 +23,17 @@ description: 指定されたC#のxUnitテストから、実装前の追跡用に
 ラベルの一部だけがある場合も、内容と位置から同じ計画ブロックだと確認できれば削除対象にする。ラベルを含まない通常コメントまで範囲を広げない。
 
 ## 保護するコメントとテスト
+
+- コードを区切る`// Arrange`、`// Act`、`// Assert`を残す。これは実装済みテストの構造を示す区切りであり、計画コメントではない。
+
+  C#では計画コメントもメソッド本体にあるため、位置では判別できない。次で区別する。
+
+  | | 計画コメント（削除対象） | 構造コメント（保護する） |
+  | --- | --- | --- |
+  | 形 | `// Arrange: 説明` のようにコロンと説明を伴う | `// Arrange` のみ |
+  | 並び | 連続したblockを成し、`ID:`または`Source:`を含む | 単独で現れ、間にコードがある |
+
+  判断できない場合は削除せず、報告する。消しすぎは復元できないが、残しすぎは次の機会に直せる。
 
 - 実装上の理由、採用しなかった方法、境界条件の理由を説明するコメントを残す。
 - analyzer抑制、外部仕様の注意、既知の制約を説明するコメントを残す。
@@ -51,9 +62,9 @@ public void Subject_WhenCondition_ReturnsResult()
 {
     // ID: SUBJECT-01
     // Source: docs/spec.md §1.
-    // Given: a supported value
-    // When: creation is requested
-    // Then: creation succeeds
+    // Arrange: a supported value
+    // Act: creation is requested
+    // Assert: creation succeeds
     // Error: none
     // Priority: High
     var result = Subject.Create("value");

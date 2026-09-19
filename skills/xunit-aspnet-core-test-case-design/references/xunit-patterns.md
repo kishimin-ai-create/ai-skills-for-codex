@@ -14,9 +14,9 @@ public sealed class PostImagesTests
     {
         // ID: IMAGES-01
         // Source: docs/api/images.md
-        // Given: a valid image request
-        // When: the client posts the request
-        // Then: the API returns PNG content with the documented metadata
+        // Arrange: a valid image request
+        // Act: the client posts the request
+        // Assert: the API returns PNG content with the documented metadata
         // Level: ASP.NET Core integration
         // Priority: High
     }
@@ -49,9 +49,9 @@ public void PostImages_WhenUpstreamTimesOut_ReturnsGatewayTimeout()
 {
     // ID: IMAGES-02
     // Source: docs/api/images.md
-    // Given: the upstream request exceeds its timeout
-    // When: the client posts a valid request
-    // Then: the API returns the documented timeout response without internal details
+    // Arrange: the upstream request exceeds its timeout
+    // Act: the client posts a valid request
+    // Assert: the API returns the documented timeout response without internal details
     // Blocked by: define the upstream timeout contract
     // Priority: High
 }

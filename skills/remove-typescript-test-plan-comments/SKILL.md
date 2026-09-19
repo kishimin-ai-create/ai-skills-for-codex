@@ -1,6 +1,6 @@
 ---
 name: remove-typescript-test-plan-comments
-description: 指定されたTypeScriptのVitest・Jestテストから、実装前の追跡用に残された`ID`、`Source`、`Given`、`When`、`Then`、`Error`、`Blocked by`、`Priority`形式の計画コメントだけを削除する。実装済みの.test.ts、.test.tsx、.spec.ts、.spec.tsxを整理し、通常の理由コメントやtest.todo・skip中の未実装計画を保護したいときに使用する。
+description: 指定されたTypeScriptのVitest・Jestテストから、実装前の追跡用に残された`ID`、`Source`、`Arrange`、`Act`、`Assert`、`Error`、`Blocked by`、`Priority`形式の計画コメントだけを削除する。実装済みの.test.ts、.test.tsx、.spec.ts、.spec.tsxを整理し、通常の理由コメントやtest.todo・skip中の未実装計画を保護したいときに使用する。
 ---
 
 # Remove TypeScript Test Plan Comments
@@ -13,9 +13,9 @@ description: 指定されたTypeScriptのVitest・Jestテストから、実装�
 
 - `ID:`
 - `Source:`
-- `Given:`
-- `When:`
-- `Then:`
+- `Arrange:`
+- `Act:`
+- `Assert:`
 - `Error:`
 - `Blocked by:`
 - `Priority:`
@@ -24,6 +24,8 @@ labelの一部だけがある場合も、内容と位置から同じ計画block�
 
 ## 保護するコメントとテスト
 
+- callbackの内側にある`// Arrange`、`// Act`、`// Assert`を残す。これは実装済みテストの構造を示す区切りであり、計画コメントではない。
+  計画コメントは`test`・`it`宣言の直前にあり、構造コメントは本体の内側にある。位置で判別し、label名だけで判断しない。
 - 実装上の理由、採用しなかった方法、境界条件の理由を説明するコメントを残す。
 - ESLint抑制、外部仕様の注意、既知の制約を説明するコメントを残す。
 - `test.todo`と`it.todo`の計画コメントを変更しない。
@@ -49,9 +51,9 @@ labelの一部だけがある場合も、内容と位置から同じ計画block�
 ```ts
 // ID: SUBJECT-S-001
 // Source: docs/spec.md §1
-// Given: a supported value
-// When: creation is requested
-// Then: creation succeeds
+// Arrange: a supported value
+// Act: creation is requested
+// Assert: creation succeeds
 // Priority: P0
 test("creates a result for a supported value", () => {
   const result = createSubject("value");

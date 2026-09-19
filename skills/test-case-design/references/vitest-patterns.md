@@ -6,18 +6,18 @@
 describe("対象の公開契約", () => {
   // ID: REGISTRATION-S-001
   // Source: requirements.md §3 "Registration"
-  // Given: 登録可能な入力が指定されている
-  // When: 登録を実行する
-  // Then: 登録結果を返し、同じ副作用を重複して発生させない
+  // Arrange: 登録可能な入力が指定されている
+  // Act: 登録を実行する
+  // Assert: 登録結果を返し、同じ副作用を重複して発生させない
   // Blocked by: 登録処理の実装
   // Priority: P0
   test.todo("入力が有効な時、登録結果を返すこと");
 
   // ID: REGISTRATION-S-002
   // Source: requirements.md §3 "Validation"
-  // Given: 必須値が欠けた入力が指定されている
-  // When: 登録を実行する
-  // Then: 永続化せず、利用者が修正可能な検証エラーを返す
+  // Arrange: 必須値が欠けた入力が指定されている
+  // Act: 登録を実行する
+  // Assert: 永続化せず、利用者が修正可能な検証エラーを返す
   // Error: required
   // Priority: P0
   test.todo("入力が不正な時、永続化せず検証エラーを返すこと");

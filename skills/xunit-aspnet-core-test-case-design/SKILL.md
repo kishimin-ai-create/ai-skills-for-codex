@@ -15,7 +15,7 @@ description: Design and scaffold behavior-focused xUnit placeholder tests for AS
 - 1ファイルへ異なるサイズを混在させない。同じ対象でも依存境界が異なる場合はサイズ別ファイルへ分割する。
 - 各ケースを`public void Condition_Action_ExpectedResult()`として作り、`[Fact(Skip = "TODO: ...")]`を付ける。空の関数を成功扱いにしない。
 - Theory候補は関数内コメントへ記録する。データとassertionを実装するまでは、データなしの`[Theory]`を作らずSkipped Factを使う。
-- 各関数本体には`// ID`、`// Source`、`// Given`、`// When`、`// Then`、必要な`// Error`または`// Blocked by`、`// Priority`をすべて書く。
+- 各関数本体には`// ID`、`// Source`、`// Arrange`、`// Act`、`// Assert`、必要な`// Error`または`// Blocked by`、`// Priority`をすべて書く。
 - ケース計画コメントをクラス外や関数外へ置かない。
 - assertion、fixture、fake、stub、データプロバイダー、プロダクションコードは実装しない。
 - 生成した関数をすべてSkippedとして報告し、実装済み・成功・coverage対象として扱わない。
