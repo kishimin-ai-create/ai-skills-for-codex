@@ -21,7 +21,8 @@ Provide a Git-managed collection of reusable AI agent skills for development, te
 3. [Directory Structure](#directory-structure)
 4. [Getting Started](#getting-started)
 5. [Usage](#usage)
-6. [Available Commands](#available-commands)
+6. [Recommended External Skills](#recommended-external-skills)
+7. [Available Commands](#available-commands)
 
 ## About the Project
 
@@ -36,6 +37,26 @@ This repository stores reusable agent capabilities as Skills:
 The `skills/` directory is the Git-managed source of truth for the collection. Individual Skills cover areas such as TDD, test design, frontend and backend engineering, security, Git and GitHub workflows, documentation, and synchronization between agent environments.
 
 Each Skill is self-contained. Read its `SKILL.md` before using its scripts or supporting resources because the entrypoint defines the applicable safety rules and workflow.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Recommended External Skills
+
+The following Skills were added based on recommendations. They were created outside this repository and were not authored by this repository's maintainers. Six Skills identify `claudekit` as the author in their metadata; the source author for the other entries is not identified here.
+
+| Skill | Author metadata |
+| ----- | --------------- |
+| `banner-design` | `claudekit` |
+| `brand` | `claudekit` |
+| `design` | `claudekit` |
+| `design-system` | `claudekit` |
+| `empirical-prompt-tuning` | Not specified |
+| `slides` | `claudekit` |
+| `ui-styling` | `claudekit` |
+| `ui-ux-pro-max` | Not specified |
+| `waxa-eval` | Not specified |
+
+These Skills are included as recommended resources; their inclusion does not imply authorship by this repository's maintainers.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
