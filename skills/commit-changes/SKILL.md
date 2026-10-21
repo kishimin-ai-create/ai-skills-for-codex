@@ -22,6 +22,8 @@ Create a commit only after the user explicitly requests it. Review the complete 
 3. Identify unrelated changes and preserve them. Do not use `git add .` or `git add -A`.
 4. Exclude secrets, `.env` files, credentials, build output, dependency directories, and machine-specific files.
 
+Resolve the requested scope from the current task and explicit include/exclude instructions. A request to commit does not make every dirty file in the repository part of the task. Preserve excluded Markdown and planning files locally; do not delete them to obtain a clean status. If a file mixes intended and unrelated edits, stage only the intended hunks when they can be separated confidently; ask about ownership when they cannot.
+
 ## Select and stage changes
 
 Stage only the reviewed paths with explicit arguments:
@@ -75,3 +77,5 @@ git show --stat --oneline --summary HEAD
 ```
 
 Report the commit hash, message, changed files, and verification result. Do not run `git push`; leave remote publication for the user.
+
+Also report remaining staged, unstaged, and untracked work. If asked whether anything remains uncommitted, inspect the full status again, including untracked files; distinguish intentional exclusions from overlooked task changes.
