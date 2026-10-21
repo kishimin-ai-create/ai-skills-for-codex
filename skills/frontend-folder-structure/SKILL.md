@@ -1,6 +1,6 @@
 ---
 name: frontend-folder-structure
-description: bulletproof-reactを土台にしたReact/TypeScriptフロントエンドのディレクトリ構成（src/api, app/{providers,routes,schemas,tests,views}, components, features/<feature>/{schemas,tests,types,views}, gen, hooks, images, lib, models, providers, schemas, tests, theme, types, utils）で、新規ファイルの置き場所を判断し、新規プロジェクトの雛形を作成し、既存コードや設計ドキュメントの配置をレビューするときに使用する。「フォルダ構成」「ディレクトリ構造」「どこに置く」「新しい機能を追加」「Zodスキーマはどこに置く」「この型はどこ」「フロントエンドの雛形を作って」といった発話でも、bulletproof-reactへの明示的な言及がなくても積極的に使用する。
+description: React/TypeScriptフロントエンドのファイル配置・雛形・既存構成を設計またはレビューする。appディレクトリの競合、backend・frontend・共有schemaの配置やモジュール解決を調査する場合にも使用する。
 ---
 
 # Frontend Folder Structure
@@ -8,6 +8,8 @@ description: bulletproof-reactを土台にしたReact/TypeScriptフロントエ�
 React/TypeScriptフロントエンドのディレクトリ構成を、bulletproof-reactを土台にした独自規約で設計・適用・レビューする。新規プロジェクトの雛形作成、新しいファイルの配置判断、既存コードや設計ドキュメントの配置レビューで使用する。
 
 ## 全体構成
+
+`app`の競合やbackend・frontend・schema間の配置調査では、先に[structure-diagnosis.md](./references/structure-diagnosis.md)を読む。以下はフロントエンド内部の配置規約であり、リポジトリ全体やバックエンドへそのまま適用しない。
 
 ```text
 src/
