@@ -1,6 +1,6 @@
 ---
 name: typescript-type-safety
-description: TypeScriptでasによる型アサーションとanyの使用を避け、型ガードとunknownによる安全な型処理を行うための実装ルール。
+description: TypeScriptで型アサーションとanyを避け、unknownと型ガードで外部入力を扱う。API実装・実レスポンス・Schemaの不整合や、型チェックで検出されない契約違反の調査にも使用する。
 ---
 
 # Typescript Type Safety
@@ -8,6 +8,8 @@ description: TypeScriptでasによる型アサーションとanyの使用を避�
 ## 目的
 
 `as` と `any` を避け、型ガードと `unknown` を使用して型安全なコードを実装すること。
+
+APIレスポンス、実行時Schema、OpenAPIと型検査結果が食い違う場合は、[api-contract-diagnosis.md](./references/api-contract-diagnosis.md)を読む。調査やヒントだけの依頼では修正を実行しない。
 
 ## 手順
 
